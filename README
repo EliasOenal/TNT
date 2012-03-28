@@ -1,0 +1,3 @@
+This is the Thumb2 Newlib Toolchain project providing a script to compile the latest Linaro GCC with Newlib and optimizations for microcontrollers.
+
+So far it only has been tested on OSX, feel free to push changes for your OS.
