@@ -1,13 +1,45 @@
 #!/bin/bash
 # Thumb2 Newlib Toolchain
 # Written by Elias Önal <EliasOenal@gmail.com>, released as public domain.
-#
-# The script expects the following archives to be already extracted to its folder
-# https://launchpad.net/gcc-linaro/4.7/4.7-2012.05/+download/gcc-linaro-4.7-2012.05.tar.bz2
-# ftp://sources.redhat.com/pub/newlib/newlib-1.20.0.tar.gz
-# http://ftp.gnu.org/gnu/binutils/binutils-2.22.tar.gz
+
 
 set -e # abort on errors
+
+GCC_URL="https://launchpad.net/gcc-linaro/4.7/4.7-2012.05/+download/gcc-linaro-4.7-2012.05.tar.bz2"
+GCC_VERSION="gcc-linaro-4.7-2012.05"
+
+NEWLIB_URL="ftp://sources.redhat.com/pub/newlib/newlib-1.20.0.tar.gz"
+NEWLIB_VERSION="newlib-1.20.0"
+
+BINUTILS_URL="http://ftp.gnu.org/gnu/binutils/binutils-2.22.tar.gz"
+BINUTILS_VERSION="binutils-2.22"
+
+# Download
+if [ ! -e ${GCC_VERSION}.tar.bz2 ]; then
+curl -OL ${GCC_URL}
+fi
+
+if [ ! -e ${NEWLIB_VERSION}.tar.gz ]; then
+curl -OL ${NEWLIB_URL}
+fi
+
+if [ ! -e ${BINUTILS_VERSION}.tar.gz ]; then
+curl -OL ${BINUTILS_URL}
+fi
+
+# Extract
+if [ ! -e ${GCC_VERSION} ]; then
+tar -xf ${GCC_VERSION}.tar.bz2
+fi
+
+if [ ! -e ${NEWLIB_VERSION} ]; then
+tar -xf ${NEWLIB_VERSION}.tar.gz
+fi
+
+if [ ! -e ${BINUTILS_VERSION} ]; then
+tar -xf ${BINUTILS_VERSION}.tar.gz
+fi
+
 
 TARGET=arm-none-eabi
 PREFIX=$HOME/toolchain
@@ -95,7 +127,7 @@ if [ ! -e build-binutils ]; then
 
 mkdir build-binutils
 cd build-binutils
-../binutils-2.22/configure --target=${TARGET} --prefix=${PREFIX} --with-sysroot=${PREFIX}/${TARGET} --disable-nls
+../${BINUTILS_VERSION}/configure --target=${TARGET} --prefix=${PREFIX} --with-sysroot=${PREFIX}/${TARGET} --disable-nls
 make all -j2
 make install
 cd ..
@@ -107,7 +139,7 @@ if [ ! -e build-gcc ]; then
 
 mkdir build-gcc
 cd build-gcc
-../gcc-linaro-4.7-2012.05/configure ${GCCFLAGS} ${GCCFLAGS_ONE}
+../${GCC_VERSION}/configure ${GCCFLAGS} ${GCCFLAGS_ONE}
 make all-gcc -j2 CFLAGS_FOR_TARGET="${OPTIMIZE}"
 make install-gcc
 cd ..
@@ -119,7 +151,7 @@ if [ ! -e build-newlib ]; then
 
 mkdir build-newlib
 cd build-newlib
-../newlib-1.20.0/configure ${NEWLIB_FLAGS}
+../${NEWLIB_VERSION}/configure ${NEWLIB_FLAGS}
 make all -j2 CFLAGS_FOR_TARGET="${OPTIMIZE}" CCASFLAGS="${OPTIMIZE}"
 make install
 cd ..
@@ -128,7 +160,7 @@ fi
 
 
 cd build-gcc
-../gcc-linaro-4.7-2012.05/configure ${GCCFLAGS} ${GCCFLAGS_TWO}
+../${GCC_VERSION}/configure ${GCCFLAGS} ${GCCFLAGS_TWO}
 make all -j2 CFLAGS_FOR_TARGET="${OPTIMIZE}"
 make install
 cd ..
