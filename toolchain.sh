@@ -1,6 +1,11 @@
 #!/bin/bash
 # Thumb2 Newlib Toolchain
 # Written by Elias Önal <EliasOenal@gmail.com>, released as public domain.
+#
+# The script expects the following archives to be already extracted to its folder
+# https://launchpad.net/gcc-linaro/4.7/4.7-2012.05/+download/gcc-linaro-4.7-2012.05.tar.bz2
+# ftp://sources.redhat.com/pub/newlib/newlib-1.20.0.tar.gz
+# http://ftp.gnu.org/gnu/binutils/binutils-2.22.tar.gz
 
 set -e # abort on errors
 
@@ -10,7 +15,7 @@ export PATH=$PATH:${PREFIX}/bin
 
 #OSX workarounds
 DARWIN_OPT_PATH=/opt/local
-export CC=gcc-4.2
+export CC=gcc
 
 DARWIN_LIBS="--with-gmp=${DARWIN_OPT_PATH} \
 		--with-mpfr=${DARWIN_OPT_PATH} \
@@ -102,7 +107,7 @@ if [ ! -e build-gcc ]; then
 
 mkdir build-gcc
 cd build-gcc
-../gcc-linaro-4.6-2012.02/configure ${GCCFLAGS} ${GCCFLAGS_ONE}
+../gcc-linaro-4.7-2012.05/configure ${GCCFLAGS} ${GCCFLAGS_ONE}
 make all-gcc -j2 CFLAGS_FOR_TARGET="${OPTIMIZE}"
 make install-gcc
 cd ..
@@ -123,7 +128,7 @@ fi
 
 
 cd build-gcc
-../gcc-linaro-4.6-2012.02/configure ${GCCFLAGS} ${GCCFLAGS_TWO}
+../gcc-linaro-4.7-2012.05/configure ${GCCFLAGS} ${GCCFLAGS_TWO}
 make all -j2 CFLAGS_FOR_TARGET="${OPTIMIZE}"
 make install
 cd ..
