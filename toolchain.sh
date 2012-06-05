@@ -5,6 +5,8 @@
 
 set -e # abort on errors
 
+OS_TYPE=$(uname)
+
 GCC_URL="https://launchpad.net/gcc-linaro/4.7/4.7-2012.05/+download/gcc-linaro-4.7-2012.05.tar.bz2"
 GCC_VERSION="gcc-linaro-4.7-2012.05"
 
@@ -45,6 +47,8 @@ TARGET=arm-none-eabi
 PREFIX=$HOME/toolchain
 export PATH=$PATH:${PREFIX}/bin
 
+
+if [ "$OS_TYPE" == "Darwin" ]; then
 #OSX workarounds
 DARWIN_OPT_PATH=/opt/local
 export CC=gcc
@@ -53,6 +57,8 @@ DARWIN_LIBS="--with-gmp=${DARWIN_OPT_PATH} \
 		--with-mpfr=${DARWIN_OPT_PATH} \
 		--with-mpc=${DARWIN_OPT_PATH} \
 		--with-libiconv-prefix=${DARWIN_OPT_PATH}"
+fi
+
 
 #newlib
 NEWLIB_FLAGS="--target=${TARGET} \
@@ -123,7 +129,8 @@ GCCFLAGS_ONE="--without-headers --enable-languages=c"
 # now c++ as well
 GCCFLAGS_TWO="--enable-languages=c,c++ --disable-libssp"
 
-if [ ! -e build-binutils ]; then
+
+if [ ! -e build-binutils.complete ]; then
 
 mkdir build-binutils
 cd build-binutils
@@ -131,11 +138,12 @@ cd build-binutils
 make all -j2
 make install
 cd ..
+touch build-binutils.complete
 
 fi
 
 
-if [ ! -e build-gcc ]; then
+if [ ! -e build-gcc.complete ]; then
 
 mkdir build-gcc
 cd build-gcc
@@ -143,11 +151,12 @@ cd build-gcc
 make all-gcc -j2 CFLAGS_FOR_TARGET="${OPTIMIZE}"
 make install-gcc
 cd ..
+touch build-gcc.complete
 
 fi
 
 
-if [ ! -e build-newlib ]; then
+if [ ! -e build-newlib.complete ]; then
 
 mkdir build-newlib
 cd build-newlib
@@ -155,15 +164,22 @@ cd build-newlib
 make all -j2 CFLAGS_FOR_TARGET="${OPTIMIZE}" CCASFLAGS="${OPTIMIZE}"
 make install
 cd ..
+touch build-newlib.complete
 
 fi
 
+
+if [ ! -e build2-gcc.complete ]; then
 
 cd build-gcc
 ../${GCC_VERSION}/configure ${GCCFLAGS} ${GCCFLAGS_TWO}
 make all -j2 CFLAGS_FOR_TARGET="${OPTIMIZE}"
 make install
 cd ..
+touch build2-gcc.complete
+
+fi
+
 
 if [ ! -e build-gdb ]; then
 echo "Building GDB"
