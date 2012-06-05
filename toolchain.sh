@@ -16,6 +16,9 @@ NEWLIB_VERSION="newlib-1.20.0"
 BINUTILS_URL="http://ftp.gnu.org/gnu/binutils/binutils-2.22.tar.gz"
 BINUTILS_VERSION="binutils-2.22"
 
+GDB_URL="http://ftp.gnu.org/gnu/gdb/gdb-7.4.1.tar.gz"
+GDB_VERSION="gdb-7.4.1"
+
 # Download
 if [ ! -e ${GCC_VERSION}.tar.bz2 ]; then
 curl -OL ${GCC_URL}
@@ -27,6 +30,10 @@ fi
 
 if [ ! -e ${BINUTILS_VERSION}.tar.gz ]; then
 curl -OL ${BINUTILS_URL}
+fi
+
+if [ ! -e ${GDB_VERSION}.tar.gz ]; then
+curl -OL ${GDB_URL}
 fi
 
 # Extract
@@ -42,6 +49,9 @@ if [ ! -e ${BINUTILS_VERSION} ]; then
 tar -xf ${BINUTILS_VERSION}.tar.gz
 fi
 
+if [ ! -e ${GDB_VERSION} ]; then
+tar -xf ${GDB_VERSION}.tar.gz
+fi
 
 TARGET=arm-none-eabi
 PREFIX=$HOME/toolchain
@@ -181,11 +191,14 @@ touch build2-gcc.complete
 fi
 
 
-if [ ! -e build-gdb ]; then
-echo "Building GDB"
-#mkdir build-gdb
-#cd build-gdb
-#../gdb-7.3.1/configure --target=$TARGET --prefix=$PREFIX
-#make all
-#make install
+if [ ! -e build-gdb.complete ]; then
+
+mkdir build-gdb
+cd build-gdb
+../${GDB_VERSION}/configure --target=$TARGET --prefix=$PREFIX
+make all -j2
+make install
+cd ..
+touch build-gdb.complete
+
 fi
