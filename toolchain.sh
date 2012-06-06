@@ -6,6 +6,36 @@
 set -e # abort on errors
 
 OS_TYPE=$(uname)
+NUM_THREADS="-j2"
+DOWNLOAD="curl -OL"
+EXTRACT="tar -xf"
+MAKE="make"
+
+#OSX workarounds
+if [ "$OS_TYPE" == "Darwin" ]; then
+DARWIN_OPT_PATH=/opt/local
+export CC=gcc
+
+DARWIN_LIBS="--with-gmp=${DARWIN_OPT_PATH} \
+		--with-mpfr=${DARWIN_OPT_PATH} \
+		--with-mpc=${DARWIN_OPT_PATH} \
+		--with-libiconv-prefix=${DARWIN_OPT_PATH}"
+fi
+
+#NetBSD workarounds
+if [ "$OS_TYPE" == "NetBSD" ]; then
+NETBSD_LIB_PATH=/usr/local
+export CC=gcc
+
+NETBSD_LIBS="--with-gmp=${NETBSD_LIB_PATH} \
+		--with-mpfr=${NETBSD_LIB_PATH} \
+		--with-mpc=${NETBSD_LIB_PATH} \
+		--with-libiconv-prefix=${NETBSD_LIB_PATH}"
+
+DOWNLOAD="curl -kOL"
+EXTRACT="gtar -xf"
+MAKE="gmake"
+fi
 
 GCC_URL="https://launchpad.net/gcc-linaro/4.7/4.7-2012.05/+download/gcc-linaro-4.7-2012.05.tar.bz2"
 GCC_VERSION="gcc-linaro-4.7-2012.05"
@@ -21,53 +51,41 @@ GDB_VERSION="gdb-7.4.1"
 
 # Download
 if [ ! -e ${GCC_VERSION}.tar.bz2 ]; then
-curl -OL ${GCC_URL}
+${DOWNLOAD} ${GCC_URL}
 fi
 
 if [ ! -e ${NEWLIB_VERSION}.tar.gz ]; then
-curl -OL ${NEWLIB_URL}
+${DOWNLOAD} ${NEWLIB_URL}
 fi
 
 if [ ! -e ${BINUTILS_VERSION}.tar.gz ]; then
-curl -OL ${BINUTILS_URL}
+${DOWNLOAD} ${BINUTILS_URL}
 fi
 
 if [ ! -e ${GDB_VERSION}.tar.gz ]; then
-curl -OL ${GDB_URL}
+${DOWNLOAD} ${GDB_URL}
 fi
 
 # Extract
 if [ ! -e ${GCC_VERSION} ]; then
-tar -xf ${GCC_VERSION}.tar.bz2
+${EXTRACT} ${GCC_VERSION}.tar.bz2
 fi
 
 if [ ! -e ${NEWLIB_VERSION} ]; then
-tar -xf ${NEWLIB_VERSION}.tar.gz
+${EXTRACT} ${NEWLIB_VERSION}.tar.gz
 fi
 
 if [ ! -e ${BINUTILS_VERSION} ]; then
-tar -xf ${BINUTILS_VERSION}.tar.gz
+${EXTRACT} ${BINUTILS_VERSION}.tar.gz
 fi
 
 if [ ! -e ${GDB_VERSION} ]; then
-tar -xf ${GDB_VERSION}.tar.gz
+${EXTRACT} ${GDB_VERSION}.tar.gz
 fi
 
 TARGET=arm-none-eabi
 PREFIX=$HOME/toolchain
 export PATH=${PREFIX}/bin:$PATH
-
-
-if [ "$OS_TYPE" == "Darwin" ]; then
-#OSX workarounds
-DARWIN_OPT_PATH=/opt/local
-export CC=gcc
-
-DARWIN_LIBS="--with-gmp=${DARWIN_OPT_PATH} \
-		--with-mpfr=${DARWIN_OPT_PATH} \
-		--with-mpc=${DARWIN_OPT_PATH} \
-		--with-libiconv-prefix=${DARWIN_OPT_PATH}"
-fi
 
 
 #newlib
@@ -119,6 +137,7 @@ GCCFLAGS="--target=${TARGET} \
 	--prefix=${PREFIX} \
 	--with-newlib \
 	${DARWIN_LIBS} \
+	${NETBSD_LIBS} \
 	--with-build-time-tools=${PREFIX}/${TARGET}/bin \
 	--with-sysroot=${PREFIX}/${TARGET} \
 	--disable-shared \
@@ -145,8 +164,8 @@ if [ ! -e build-binutils.complete ]; then
 mkdir build-binutils
 cd build-binutils
 ../${BINUTILS_VERSION}/configure --target=${TARGET} --prefix=${PREFIX} --with-sysroot=${PREFIX}/${TARGET} --disable-nls
-make all -j2
-make install
+${MAKE} all ${NUM_THREADS}
+${MAKE} install
 cd ..
 touch build-binutils.complete
 
@@ -158,8 +177,8 @@ if [ ! -e build-gcc.complete ]; then
 mkdir build-gcc
 cd build-gcc
 ../${GCC_VERSION}/configure ${GCCFLAGS} ${GCCFLAGS_ONE}
-make all-gcc -j2 CFLAGS_FOR_TARGET="${OPTIMIZE}"
-make install-gcc
+${MAKE} all-gcc ${NUM_THREADS} CFLAGS_FOR_TARGET="${OPTIMIZE}"
+${MAKE} install-gcc
 cd ..
 touch build-gcc.complete
 
@@ -171,8 +190,8 @@ if [ ! -e build-newlib.complete ]; then
 mkdir build-newlib
 cd build-newlib
 ../${NEWLIB_VERSION}/configure ${NEWLIB_FLAGS}
-make all -j2 CFLAGS_FOR_TARGET="${OPTIMIZE}" CCASFLAGS="${OPTIMIZE}"
-make install
+${MAKE} all ${NUM_THREADS} CFLAGS_FOR_TARGET="${OPTIMIZE}" CCASFLAGS="${OPTIMIZE}"
+${MAKE} install
 cd ..
 touch build-newlib.complete
 
@@ -183,8 +202,8 @@ if [ ! -e build2-gcc.complete ]; then
 
 cd build-gcc
 ../${GCC_VERSION}/configure ${GCCFLAGS} ${GCCFLAGS_TWO}
-make all -j2 CFLAGS_FOR_TARGET="${OPTIMIZE}"
-make install
+${MAKE} all ${NUM_THREADS} CFLAGS_FOR_TARGET="${OPTIMIZE}"
+${MAKE} install
 cd ..
 touch build2-gcc.complete
 
@@ -196,8 +215,8 @@ if [ ! -e build-gdb.complete ]; then
 mkdir build-gdb
 cd build-gdb
 ../${GDB_VERSION}/configure --target=$TARGET --prefix=$PREFIX
-make all -j2
-make install
+${MAKE} all ${NUM_THREADS}
+${MAKE} install
 cd ..
 touch build-gdb.complete
 
