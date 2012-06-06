@@ -55,7 +55,7 @@ fi
 
 TARGET=arm-none-eabi
 PREFIX=$HOME/toolchain
-export PATH=$PATH:${PREFIX}/bin
+export PATH=${PREFIX}/bin:$PATH
 
 
 if [ "$OS_TYPE" == "Darwin" ]; then
