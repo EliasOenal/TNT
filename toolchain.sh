@@ -90,7 +90,6 @@ export CC=gcc
 case "$OS_TYPE" in
     "Linux" )
     OPT_PATH=""
-    OPT_LIBS=""
     ;;
     "NetBSD" )
     OPT_PATH=/usr/local
@@ -103,10 +102,16 @@ case "$OS_TYPE" in
     exit
 esac
 
-OPT_LIBS=${OPT_LIBS:="--with-gmp=${OPT_PATH} \
+if [ "$OPT_PATH" == "" ]; then
+OPT_LIBS=""
+else
+OPT_LIBS="--with-gmp=${OPT_PATH} \
 	--with-mpfr=${OPT_PATH} \
 	--with-mpc=${OPT_PATH} \
-	--with-libiconv-prefix=${OPT_PATH}"}
+	--with-libiconv-prefix=${OPT_PATH}"
+fi
+
+
 
 
 #newlib
