@@ -1,41 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Thumb2 Newlib Toolchain
 # Written by Elias Önal <EliasOenal@gmail.com>, released as public domain.
-
-
-set -e # abort on errors
-
-OS_TYPE=$(uname)
-NUM_THREADS="-j2"
-DOWNLOAD="curl -OL"
-EXTRACT="tar -xf"
-MAKE="make"
-
-#OSX workarounds
-if [ "$OS_TYPE" == "Darwin" ]; then
-DARWIN_OPT_PATH=/opt/local
-export CC=gcc
-
-DARWIN_LIBS="--with-gmp=${DARWIN_OPT_PATH} \
-		--with-mpfr=${DARWIN_OPT_PATH} \
-		--with-mpc=${DARWIN_OPT_PATH} \
-		--with-libiconv-prefix=${DARWIN_OPT_PATH}"
-fi
-
-#NetBSD workarounds
-if [ "$OS_TYPE" == "NetBSD" ]; then
-NETBSD_LIB_PATH=/usr/local
-export CC=gcc
-
-NETBSD_LIBS="--with-gmp=${NETBSD_LIB_PATH} \
-		--with-mpfr=${NETBSD_LIB_PATH} \
-		--with-mpc=${NETBSD_LIB_PATH} \
-		--with-libiconv-prefix=${NETBSD_LIB_PATH}"
-
-DOWNLOAD="curl -kOL"
-EXTRACT="gtar -xf"
-MAKE="gmake"
-fi
 
 GCC_URL="https://launchpad.net/gcc-linaro/4.7/4.7-2012.05/+download/gcc-linaro-4.7-2012.05.tar.bz2"
 GCC_VERSION="gcc-linaro-4.7-2012.05"
@@ -49,43 +14,99 @@ BINUTILS_VERSION="binutils-2.22"
 GDB_URL="http://ftp.gnu.org/gnu/gdb/gdb-7.4.1.tar.gz"
 GDB_VERSION="gdb-7.4.1"
 
+set -e # abort on errors
+
+OS_TYPE=$(uname)
+
+# locate the tools
+if [ `whereis -p curl` ]; then
+FETCH="curl -kOL"
+elif [ `whereis -p wget` ]; then
+FETCH="wget -t 0 -c --no-check-certificate "
+else
+echo "Neither curl or wget located."
+exit
+fi
+
+if [ `whereis -p gtar` ]; then
+TAR=gtar
+elif [ `whereis -p tar` ]; then
+TAR=tar
+else
+echo "tar required."
+exit
+fi
+
+if [ `whereis -p gmake` ]; then
+MAKE=gmake
+elif [ `whereis -p make` ]; then
+MAKE=make
+else
+echo "make required."
+exit
+fi
+
 # Download
 if [ ! -e ${GCC_VERSION}.tar.bz2 ]; then
-${DOWNLOAD} ${GCC_URL}
+${FETCH} ${GCC_URL}
 fi
 
 if [ ! -e ${NEWLIB_VERSION}.tar.gz ]; then
-${DOWNLOAD} ${NEWLIB_URL}
+${FETCH} ${NEWLIB_URL}
 fi
 
 if [ ! -e ${BINUTILS_VERSION}.tar.gz ]; then
-${DOWNLOAD} ${BINUTILS_URL}
+${FETCH} ${BINUTILS_URL}
 fi
 
 if [ ! -e ${GDB_VERSION}.tar.gz ]; then
-${DOWNLOAD} ${GDB_URL}
+${FETCH} ${GDB_URL}
 fi
 
 # Extract
 if [ ! -e ${GCC_VERSION} ]; then
-${EXTRACT} ${GCC_VERSION}.tar.bz2
+${TAR} -xf ${GCC_VERSION}.tar.bz2
 fi
 
 if [ ! -e ${NEWLIB_VERSION} ]; then
-${EXTRACT} ${NEWLIB_VERSION}.tar.gz
+${TAR} -xf ${NEWLIB_VERSION}.tar.gz
 fi
 
 if [ ! -e ${BINUTILS_VERSION} ]; then
-${EXTRACT} ${BINUTILS_VERSION}.tar.gz
+${TAR} -xf ${BINUTILS_VERSION}.tar.gz
 fi
 
 if [ ! -e ${GDB_VERSION} ]; then
-${EXTRACT} ${GDB_VERSION}.tar.gz
+${TAR} -xf ${GDB_VERSION}.tar.gz
 fi
 
-TARGET=arm-none-eabi
-PREFIX=$HOME/toolchain
-export PATH=${PREFIX}/bin:$PATH
+# Configure (to the operating system)
+export TARGET=${TARGET:=arm-none-eabi}
+export PREFIX=${PREFIX:=$HOME/toolchain}
+export PATH=$PATH:${PREFIX}/bin
+export CC=gcc
+export CPUS=${CPUS:=2}
+
+case "$OS_TYPE" in
+    "Linux" )
+    export OPT_PATH=""
+    export OPT_LIBS=""
+    ;;
+    "NetBSD" )
+    export OPT_PATH=/usr/local
+    ;;
+    "OSX" )
+    export OPT_PATH=/opt
+    ;;
+    * )
+    echo "OS entry needed at line 100 of this script."
+    exit
+esac
+
+export OPT_LIBS=${OPT_LIBS:="--with-gmp=${OPT_PATH} \
+	--with-mpfr=${OPT_PATH} \
+	--with-mpc=${OPT_PATH} \
+	--with-libiconv-prefix=${OPT_PATH}"}
 
 
 #newlib
@@ -136,8 +157,7 @@ OPTIMIZE="-ffunction-sections \
 GCCFLAGS="--target=${TARGET} \
 	--prefix=${PREFIX} \
 	--with-newlib \
-	${DARWIN_LIBS} \
-	${NETBSD_LIBS} \
+	${OPT_LIBS} \
 	--with-build-time-tools=${PREFIX}/${TARGET}/bin \
 	--with-sysroot=${PREFIX}/${TARGET} \
 	--disable-shared \
@@ -164,7 +184,7 @@ if [ ! -e build-binutils.complete ]; then
 mkdir build-binutils
 cd build-binutils
 ../${BINUTILS_VERSION}/configure --target=${TARGET} --prefix=${PREFIX} --with-sysroot=${PREFIX}/${TARGET} --disable-nls
-${MAKE} all ${NUM_THREADS}
+${MAKE} all -j${CPUS}
 ${MAKE} install
 cd ..
 touch build-binutils.complete
@@ -177,7 +197,7 @@ if [ ! -e build-gcc.complete ]; then
 mkdir build-gcc
 cd build-gcc
 ../${GCC_VERSION}/configure ${GCCFLAGS} ${GCCFLAGS_ONE}
-${MAKE} all-gcc ${NUM_THREADS} CFLAGS_FOR_TARGET="${OPTIMIZE}"
+${MAKE} all-gcc -j${CPUS} CFLAGS_FOR_TARGET="${OPTIMIZE}"
 ${MAKE} install-gcc
 cd ..
 touch build-gcc.complete
@@ -190,7 +210,7 @@ if [ ! -e build-newlib.complete ]; then
 mkdir build-newlib
 cd build-newlib
 ../${NEWLIB_VERSION}/configure ${NEWLIB_FLAGS}
-${MAKE} all ${NUM_THREADS} CFLAGS_FOR_TARGET="${OPTIMIZE}" CCASFLAGS="${OPTIMIZE}"
+${MAKE} all -j${CPUS} CFLAGS_FOR_TARGET="${OPTIMIZE}" CCASFLAGS="${OPTIMIZE}"
 ${MAKE} install
 cd ..
 touch build-newlib.complete
@@ -202,7 +222,7 @@ if [ ! -e build2-gcc.complete ]; then
 
 cd build-gcc
 ../${GCC_VERSION}/configure ${GCCFLAGS} ${GCCFLAGS_TWO}
-${MAKE} all ${NUM_THREADS} CFLAGS_FOR_TARGET="${OPTIMIZE}"
+${MAKE} all -j${CPUS} CFLAGS_FOR_TARGET="${OPTIMIZE}"
 ${MAKE} install
 cd ..
 touch build2-gcc.complete
@@ -215,7 +235,7 @@ if [ ! -e build-gdb.complete ]; then
 mkdir build-gdb
 cd build-gdb
 ../${GDB_VERSION}/configure --target=$TARGET --prefix=$PREFIX
-${MAKE} all ${NUM_THREADS}
+${MAKE} all -j${CPUS}
 ${MAKE} install
 cd ..
 touch build-gdb.complete
