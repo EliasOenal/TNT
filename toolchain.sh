@@ -19,27 +19,27 @@ set -e # abort on errors
 OS_TYPE=$(uname)
 
 # locate the tools
-if [ `whereis curl` ]; then
+if [[ `whereis curl` ]]; then
 FETCH="curl -kOL"
-elif [ `whereis wget` ]; then
+elif [[ `whereis wget` ]]; then
 FETCH="wget -c --no-check-certificate "
 else
 echo "Neither curl or wget located."
 exit
 fi
 
-if [ `whereis gtar` ]; then
+if [[ `whereis gtar` ]]; then
 TAR=gtar
-elif [ `whereis tar` ]; then
+elif [[ `whereis tar` ]]; then
 TAR=tar
 else
 echo "tar required."
 exit
 fi
 
-if [ `whereis gmake` ]; then
+if [[ `whereis gmake` ]]; then
 MAKE=gmake
-elif [ `whereis make` ]; then
+elif [[ `whereis make` ]]; then
 MAKE=make
 else
 echo "make required."
