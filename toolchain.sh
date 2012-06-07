@@ -96,7 +96,7 @@ case "$OS_TYPE" in
     export OPT_PATH=/usr/local
     ;;
     "OSX" )
-    export OPT_PATH=/opt
+    export OPT_PATH=/opt/local
     ;;
     * )
     echo "OS entry needed at line 100 of this script."
