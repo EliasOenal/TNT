@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Thumb2 Newlib Toolchain
 # Written by Elias Önal <EliasOenal@gmail.com>, released as public domain.
 
@@ -19,27 +19,29 @@ set -e # abort on errors
 OS_TYPE=$(uname)
 
 # locate the tools
-if [ `whereis -p curl` ]; then
+if [ `whereis curl` ]; then
+echo "Found curl!"
 FETCH="curl -kOL"
-elif [ `whereis -p wget` ]; then
+elif [ `whereis wget` ]; then
+echo "Found wget!"
 FETCH="wget -t 0 -c --no-check-certificate "
 else
 echo "Neither curl or wget located."
 exit
 fi
 
-if [ `whereis -p gtar` ]; then
+if [ `whereis gtar` ]; then
 TAR=gtar
-elif [ `whereis -p tar` ]; then
+elif [ `whereis tar` ]; then
 TAR=tar
 else
 echo "tar required."
 exit
 fi
 
-if [ `whereis -p gmake` ]; then
+if [ `whereis gmake` ]; then
 MAKE=gmake
-elif [ `whereis -p make` ]; then
+elif [ `whereis make` ]; then
 MAKE=make
 else
 echo "make required."
@@ -95,7 +97,7 @@ case "$OS_TYPE" in
     "NetBSD" )
     export OPT_PATH=/usr/local
     ;;
-    "OSX" )
+    "Darwin" )
     export OPT_PATH=/opt/local
     ;;
     * )
