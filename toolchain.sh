@@ -20,11 +20,9 @@ OS_TYPE=$(uname)
 
 # locate the tools
 if [ `whereis curl` ]; then
-echo "Found curl!"
 FETCH="curl -kOL"
 elif [ `whereis wget` ]; then
-echo "Found wget!"
-FETCH="wget -t 0 -c --no-check-certificate "
+FETCH="wget -c --no-check-certificate "
 else
 echo "Neither curl or wget located."
 exit
@@ -83,29 +81,29 @@ ${TAR} -xf ${GDB_VERSION}.tar.gz
 fi
 
 # Configure (to the operating system)
-export TARGET=${TARGET:=arm-none-eabi}
-export PREFIX=${PREFIX:=$HOME/toolchain}
-export PATH=$PATH:${PREFIX}/bin
+TARGET=arm-none-eabi
+PREFIX="$HOME/toolchain"
+CPUS=2
+export PATH="${PREFIX}/bin:${PATH}"
 export CC=gcc
-export CPUS=${CPUS:=2}
 
 case "$OS_TYPE" in
     "Linux" )
-    export OPT_PATH=""
-    export OPT_LIBS=""
+    OPT_PATH=""
+    OPT_LIBS=""
     ;;
     "NetBSD" )
-    export OPT_PATH=/usr/local
+    OPT_PATH=/usr/local
     ;;
     "Darwin" )
-    export OPT_PATH=/opt/local
+    OPT_PATH=/opt/local
     ;;
     * )
     echo "OS entry needed at line 100 of this script."
     exit
 esac
 
-export OPT_LIBS=${OPT_LIBS:="--with-gmp=${OPT_PATH} \
+OPT_LIBS=${OPT_LIBS:="--with-gmp=${OPT_PATH} \
 	--with-mpfr=${OPT_PATH} \
 	--with-mpc=${OPT_PATH} \
 	--with-libiconv-prefix=${OPT_PATH}"}
