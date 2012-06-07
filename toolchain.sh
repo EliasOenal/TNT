@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 # Thumb2 Newlib Toolchain
 # Written by Elias Önal <EliasOenal@gmail.com>, released as public domain.
 
