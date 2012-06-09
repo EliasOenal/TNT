@@ -135,14 +135,17 @@ NEWLIB_FLAGS="--target=${TARGET} \
 # tell newlib to use 256byte buffers instead of 1024
 OPTIMIZE="-ffunction-sections \
 	-fdata-sections \
-	-Os \
+	-Os -flto -fuse-linker-plugin \
 	-fomit-frame-pointer \
 	-fno-unroll-loops \
 	-mabi=aapcs \
 	-DPREFER_SIZE_OVER_SPEED \
 	-D__OPTIMIZE_SIZE__ \
 	-DSMALL_MEMORY \
+	-D_REENT_SMALL \
 	-D__BUFSIZ__=256"
+
+OPTIMIZE_LD="-Os -flto -fuse-linker-plugin"
 
 #gcc flags
 # newlib :)
@@ -172,6 +175,7 @@ GCCFLAGS="--target=${TARGET} \
 	--disable-nls \
 	--enable-poison-system-directories \
 	--enable-lto \
+	--enable-gold \
 	--disable-libmudflap \
 	--disable-libgomp \
 	--disable-libstdcxx-pch \
@@ -188,7 +192,9 @@ if [ ! -e build-binutils.complete ]; then
 
 mkdir build-binutils
 cd build-binutils
-../${BINUTILS_VERSION}/configure --target=${TARGET} --prefix=${PREFIX} --with-sysroot=${PREFIX}/${TARGET} --disable-nls
+../${BINUTILS_VERSION}/configure --target=${TARGET} --prefix=${PREFIX} \
+        --with-sysroot=${PREFIX}/${TARGET} --disable-nls --enable-gold \
+        --enable-plugins --enable-lto --disable-werror
 ${MAKE} all -j${CPUS}
 ${MAKE} install
 cd ..
@@ -202,7 +208,8 @@ if [ ! -e build-gcc.complete ]; then
 mkdir build-gcc
 cd build-gcc
 ../${GCC_VERSION}/configure ${GCCFLAGS} ${GCCFLAGS_ONE}
-${MAKE} all-gcc -j${CPUS} CFLAGS_FOR_TARGET="${OPTIMIZE}"
+${MAKE} all-gcc -j${CPUS} CFLAGS_FOR_TARGET="${OPTIMIZE}" \
+    LDFLAGS_FOR_TARGET="${OPTIMIZE_LD}"
 ${MAKE} install-gcc
 cd ..
 touch build-gcc.complete
@@ -215,7 +222,11 @@ if [ ! -e build-newlib.complete ]; then
 mkdir build-newlib
 cd build-newlib
 ../${NEWLIB_VERSION}/configure ${NEWLIB_FLAGS}
-${MAKE} all -j${CPUS} CFLAGS_FOR_TARGET="${OPTIMIZE}" CCASFLAGS="${OPTIMIZE}"
+
+# Use "_REENT_INIT_PTR()" for reentrancy
+${MAKE} all -j${CPUS} CFLAGS_FOR_TARGET="${OPTIMIZE} -DREENTRANT_SYSCALLS_PROVIDED \
+		-DMISSING_SYSCALL_NAMES -D__DYNAMIC_REENT__" LDFLAGS_FOR_TARGET="${OPTIMIZE_LD}"
+
 ${MAKE} install
 cd ..
 touch build-newlib.complete
@@ -227,7 +238,8 @@ if [ ! -e build2-gcc.complete ]; then
 
 cd build-gcc
 ../${GCC_VERSION}/configure ${GCCFLAGS} ${GCCFLAGS_TWO}
-${MAKE} all -j${CPUS} CFLAGS_FOR_TARGET="${OPTIMIZE}"
+${MAKE} all -j${CPUS} CFLAGS_FOR_TARGET="${OPTIMIZE}" \
+    LDFLAGS_FOR_TARGET="${OPTIMIZE_LD}"
 ${MAKE} install
 cd ..
 touch build2-gcc.complete
