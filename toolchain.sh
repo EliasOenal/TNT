@@ -2,8 +2,11 @@
 # Thumb2 Newlib Toolchain
 # Written by Elias Önal <EliasOenal@gmail.com>, released as public domain.
 
-GCC_URL="https://launchpad.net/gcc-linaro/4.7/4.7-2012.05/+download/gcc-linaro-4.7-2012.05.tar.bz2"
-GCC_VERSION="gcc-linaro-4.7-2012.05"
+#GCC_URL="https://launchpad.net/gcc-linaro/4.7/4.7-2012.05/+download/gcc-linaro-4.7-2012.05.tar.bz2"
+#GCC_VERSION="gcc-linaro-4.7-2012.05"
+
+GCC_URL="ftp://gcc.gnu.org/pub/gcc/snapshots/4.8-20120610/gcc-4.8-20120610.tar.bz2"
+GCC_VERSION="gcc-4.8-20120610"
 
 NEWLIB_URL="ftp://sources.redhat.com/pub/newlib/newlib-1.20.0.tar.gz"
 NEWLIB_VERSION="newlib-1.20.0"
@@ -133,19 +136,21 @@ NEWLIB_FLAGS="--target=${TARGET} \
 # ...again
 # optimize malloc for small ram (128 byte pages instead of 4096)
 # tell newlib to use 256byte buffers instead of 1024
+
+#	-D_REENT_SMALL \
+#-flto -fuse-linker-plugin 
 OPTIMIZE="-ffunction-sections \
 	-fdata-sections \
-	-Os -flto -fuse-linker-plugin \
+	-Os \
 	-fomit-frame-pointer \
 	-fno-unroll-loops \
 	-mabi=aapcs \
 	-DPREFER_SIZE_OVER_SPEED \
 	-D__OPTIMIZE_SIZE__ \
 	-DSMALL_MEMORY \
-	-D_REENT_SMALL \
 	-D__BUFSIZ__=256"
 
-OPTIMIZE_LD="-Os -flto -fuse-linker-plugin"
+#OPTIMIZE_LD="-Os -flto -fuse-linker-plugin"
 
 #gcc flags
 # newlib :)
@@ -224,8 +229,9 @@ cd build-newlib
 ../${NEWLIB_VERSION}/configure ${NEWLIB_FLAGS}
 
 # Use "_REENT_INIT_PTR()" for reentrancy
-${MAKE} all -j${CPUS} CFLAGS_FOR_TARGET="${OPTIMIZE} -DREENTRANT_SYSCALLS_PROVIDED \
-		-DMISSING_SYSCALL_NAMES -D__DYNAMIC_REENT__" LDFLAGS_FOR_TARGET="${OPTIMIZE_LD}"
+#-DREENTRANT_SYSCALLS_PROVIDED \
+#		-DMISSING_SYSCALL_NAMES -D__DYNAMIC_REENT__
+${MAKE} all -j${CPUS} CFLAGS_FOR_TARGET="${OPTIMIZE}" LDFLAGS_FOR_TARGET="${OPTIMIZE_LD}"
 
 ${MAKE} install
 cd ..
