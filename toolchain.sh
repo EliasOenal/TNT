@@ -2,11 +2,11 @@
 # Thumb2 Newlib Toolchain
 # Written by Elias Önal <EliasOenal@gmail.com>, released as public domain.
 
-#GCC_URL="https://launchpad.net/gcc-linaro/4.7/4.7-2012.05/+download/gcc-linaro-4.7-2012.05.tar.bz2"
-#GCC_VERSION="gcc-linaro-4.7-2012.05"
+GCC_URL="https://launchpad.net/gcc-linaro/4.7/4.7-2012.08/+download/gcc-linaro-4.7-2012.08.tar.bz2"
+GCC_VERSION="gcc-linaro-4.7-2012.08"
 
-GCC_URL="ftp://gcc.gnu.org/pub/gcc/snapshots/4.8-20120610/gcc-4.8-20120610.tar.bz2"
-GCC_VERSION="gcc-4.8-20120610"
+#GCC_URL="ftp://gcc.gnu.org/pub/gcc/snapshots/4.8-20120610/gcc-4.8-20120610.tar.bz2"
+#GCC_VERSION="gcc-4.8-20120610"
 
 NEWLIB_URL="ftp://sources.redhat.com/pub/newlib/newlib-1.20.0.tar.gz"
 NEWLIB_VERSION="newlib-1.20.0"
@@ -123,7 +123,9 @@ NEWLIB_FLAGS="--target=${TARGET} \
 		--with-build-time-tools=${PREFIX}/bin \
 		--with-sysroot=${PREFIX}/${TARGET} \
 		--disable-shared \
-		--disable-newlib-supplied-syscalls"
+		--disable-newlib-supplied-syscalls \
+		--enable-newlib-reent-small \
+		--enable-target-optspace"
 
 
 # split functions into small sections for link time garbage collection
@@ -148,7 +150,8 @@ OPTIMIZE="-ffunction-sections \
 	-DPREFER_SIZE_OVER_SPEED \
 	-D__OPTIMIZE_SIZE__ \
 	-DSMALL_MEMORY \
-	-D__BUFSIZ__=256"
+	-D__BUFSIZ__=256 \
+	-D_REENT_SMALL"
 
 #OPTIMIZE_LD="-Os -flto -fuse-linker-plugin"
 
