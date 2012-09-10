@@ -69,10 +69,12 @@ fi
 # Extract
 if [ ! -e ${GCC_VERSION} ]; then
 ${TAR} -xf ${GCC_VERSION}.tar.bz2
+patch -N ${GCC_VERSION}/gcc/config/arm/t-arm-elf gcc-multilib.patch
 fi
 
 if [ ! -e ${NEWLIB_VERSION} ]; then
 ${TAR} -xf ${NEWLIB_VERSION}.tar.gz
+patch -N ${NEWLIB_VERSION}/libgloss/arm/linux-crt0.c newlib-optimize.patch
 fi
 
 if [ ! -e ${BINUTILS_VERSION} ]; then
@@ -125,7 +127,9 @@ NEWLIB_FLAGS="--target=${TARGET} \
 		--disable-shared \
 		--disable-newlib-supplied-syscalls \
 		--enable-newlib-reent-small \
-		--enable-target-optspace"
+		--enable-target-optspace \
+		--enable-multilib \
+		--enable-interwork"
 
 
 # split functions into small sections for link time garbage collection
@@ -169,6 +173,9 @@ OPTIMIZE="-ffunction-sections \
 # openMP
 # pch
 # exceptions (?)
+#	--with-arch=armv7-m
+#	--with-mode=thumb
+#	--with-float=soft
 
 GCCFLAGS="--target=${TARGET} \
 	--prefix=${PREFIX} \
@@ -177,9 +184,8 @@ GCCFLAGS="--target=${TARGET} \
 	--with-build-time-tools=${PREFIX}/${TARGET}/bin \
 	--with-sysroot=${PREFIX}/${TARGET} \
 	--disable-shared \
-	--with-arch=armv7-m \
-	--with-mode=thumb \
-	--with-float=soft \
+	--enable-multilib \
+	--enable-interwork \
 	--disable-nls \
 	--enable-poison-system-directories \
 	--enable-lto \
@@ -202,7 +208,7 @@ mkdir build-binutils
 cd build-binutils
 ../${BINUTILS_VERSION}/configure --target=${TARGET} --prefix=${PREFIX} \
         --with-sysroot=${PREFIX}/${TARGET} --disable-nls --enable-gold \
-        --enable-plugins --enable-lto --disable-werror
+        --enable-plugins --enable-lto --disable-werror --enable-multilib --enable-interwork
 ${MAKE} all -j${CPUS}
 ${MAKE} install
 cd ..
@@ -260,7 +266,7 @@ if [ ! -e build-gdb.complete ]; then
 
 mkdir build-gdb
 cd build-gdb
-../${GDB_VERSION}/configure --target=$TARGET --prefix=$PREFIX
+../${GDB_VERSION}/configure --enable-multilib --enable-interwork --target=$TARGET --prefix=$PREFIX
 ${MAKE} all -j${CPUS}
 ${MAKE} install
 cd ..

@@ -5,3 +5,4 @@ So far it only has been tested on OSX, Debian and NetBSD, feel free to push chan
 6/5/2012 - TNT has been updated to the latest Linaro GCC 4.7
 6/22/2012 - Switched to a GCC 4.8 snapshot and disabled LTO for newlib due to regressions
 8/29/2012 - Switched to the latest Linaro GCC for minor size improvements, also configured newlib with "reent-small" for 800byte savings in .data
+9/10/2012 - Multilib support for several thumb targets: armv6s-m (cortex-m0/cortex-m1) armv7-m (cortex-m3) armv7e-m (cortex-m4/cortex-m4f including FPU and DSP instruction support)

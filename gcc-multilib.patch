@@ -1,0 +1,125 @@
+--- t-arm-elf
++++ t-arm-elf
+@@ -19,73 +19,51 @@
+ 
+ MULTILIB_OPTIONS     = marm/mthumb
+ MULTILIB_DIRNAMES    = arm thumb
+-MULTILIB_EXCEPTIONS  = 
+-MULTILIB_MATCHES     =
+ 
+-#MULTILIB_OPTIONS     += mcpu=fa526/mcpu=fa626/mcpu=fa606te/mcpu=fa626te/mcpu=fmp626/mcpu=fa726te
+-#MULTILIB_DIRNAMES    += fa526 fa626 fa606te fa626te fmp626 fa726te
+-#MULTILIB_EXCEPTIONS  += *mthumb*/*mcpu=fa526 *mthumb*/*mcpu=fa626
+-
+-#MULTILIB_OPTIONS      += march=armv7
+-#MULTILIB_DIRNAMES     += thumb2
+-#MULTILIB_EXCEPTIONS   += march=armv7* marm/*march=armv7*
+-#MULTILIB_MATCHES      += march?armv7=march?armv7-a
+-#MULTILIB_MATCHES      += march?armv7=march?armv7-r
+-#MULTILIB_MATCHES      += march?armv7=march?armv7-m
+-#MULTILIB_MATCHES      += march?armv7=mcpu?cortex-a8
+-#MULTILIB_MATCHES      += march?armv7=mcpu?cortex-r4
+-#MULTILIB_MATCHES      += march?armv7=mcpu?cortex-m3
+-
+-# Not quite true.  We can support hard-vfp calling in Thumb2, but how do we
+-# express that here?  Also, we really need architecture v5e or later
+-# (mcrr etc).
+-MULTILIB_OPTIONS       += mfloat-abi=hard
+-MULTILIB_DIRNAMES      += fpu
+-MULTILIB_EXCEPTIONS    += *mthumb/*mfloat-abi=hard*
+-#MULTILIB_EXCEPTIONS    += *mcpu=fa526/*mfloat-abi=hard*
+-#MULTILIB_EXCEPTIONS    += *mcpu=fa626/*mfloat-abi=hard*
+-
+-# MULTILIB_OPTIONS    += mcpu=ep9312
+-# MULTILIB_DIRNAMES   += ep9312
+-# MULTILIB_EXCEPTIONS += *mthumb/*mcpu=ep9312*
+-# 	
+-# MULTILIB_OPTIONS     += mlittle-endian/mbig-endian
+-# MULTILIB_DIRNAMES    += le be
+-# MULTILIB_MATCHES     += mbig-endian=mbe mlittle-endian=mle
+-# 
+-# MULTILIB_OPTIONS    += mfloat-abi=hard/mfloat-abi=soft
+-# MULTILIB_DIRNAMES   += fpu soft
+-# MULTILIB_EXCEPTIONS += *mthumb/*mfloat-abi=hard*
+-# 
+-# MULTILIB_OPTIONS    += mno-thumb-interwork/mthumb-interwork
+-# MULTILIB_DIRNAMES   += normal interwork
+-# 
+-# MULTILIB_OPTIONS    += fno-leading-underscore/fleading-underscore
+-# MULTILIB_DIRNAMES   += elf under
+-# 
+-# MULTILIB_OPTIONS    += mcpu=arm7
+-# MULTILIB_DIRNAMES   += nofmult
+-# MULTILIB_EXCEPTIONS += *mthumb*/*mcpu=arm7*
+-# # Note: the multilib_exceptions matches both -mthumb and
+-# # -mthumb-interwork
+-# #
+-# # We have to match all the arm cpu variants which do not have the
+-# # multiply instruction and treat them as if the user had specified
+-# # -mcpu=arm7.  Note that in the following the ? is interpreted as
+-# # an = for the purposes of matching command line options.
+-# # FIXME: There ought to be a better way to do this.
+-# MULTILIB_MATCHES    += mcpu?arm7=mcpu?arm7d
+-# MULTILIB_MATCHES    += mcpu?arm7=mcpu?arm7di
+-# MULTILIB_MATCHES    += mcpu?arm7=mcpu?arm70
+-# MULTILIB_MATCHES    += mcpu?arm7=mcpu?arm700
+-# MULTILIB_MATCHES    += mcpu?arm7=mcpu?arm700i
+-# MULTILIB_MATCHES    += mcpu?arm7=mcpu?arm710
+-# MULTILIB_MATCHES    += mcpu?arm7=mcpu?arm710c
+-# MULTILIB_MATCHES    += mcpu?arm7=mcpu?arm7100
+-# MULTILIB_MATCHES    += mcpu?arm7=mcpu?arm7500
+-# MULTILIB_MATCHES    += mcpu?arm7=mcpu?arm7500fe
+-# MULTILIB_MATCHES    += mcpu?arm7=mcpu?arm6
+-# MULTILIB_MATCHES    += mcpu?arm7=mcpu?arm60
+-# MULTILIB_MATCHES    += mcpu?arm7=mcpu?arm600
+-# MULTILIB_MATCHES    += mcpu?arm7=mcpu?arm610
+-# MULTILIB_MATCHES    += mcpu?arm7=mcpu?arm620
++#MULTILIB_OPTIONS      += march=armv6/march=armv7
++#MULTILIB_DIRNAMES     += armv6 armv7
++MULTILIB_OPTIONS      += march=armv6s-m/march=armv7-m/march=armv7e-m
++MULTILIB_DIRNAMES     += armv6s-m armv7-m armv7e-m
++
++MULTILIB_EXCEPTIONS   += *mthumb*/*march=armv6/*
++MULTILIB_EXCEPTIONS   += march=armv6s-m* *marm*/*march=armv6s-m*
++MULTILIB_EXCEPTIONS   += march=armv7-m* *marm*/*march=armv7-m*
++MULTILIB_EXCEPTIONS   += march=armv7e-m* *marm*/*march=armv7e-m*
++
++#MULTILIB_MATCHES      += march?armv7=march?armv7-a
++#MULTILIB_MATCHES      += march?armv7=march?armv7-r
++MULTILIB_MATCHES      += march?armv6s-m=mcpu?cortex-m0
++MULTILIB_MATCHES      += march?armv6s-m=mcpu?cortex-m1
++MULTILIB_MATCHES      += march?armv7-m=mcpu?cortex-m3
++MULTILIB_MATCHES      += march?armv7e-m=mcpu?cortex-m4
++MULTILIB_MATCHES      += march?armv7e-m=mcpu?cortex-m4f
++
++#MULTILIB_OPTIONS      += mthumb-interwork
++#MULTILIB_DIRNAMES     += thumb-interwork
++#MULTILIB_EXCEPTIONS   += mthumb-interwork*
++
++MULTILIB_OPTIONS      += mhard-float/msoft-float
++MULTILIB_DIRNAMES     += hard-float soft-float
++MULTILIB_EXCEPTIONS   += mhard-float* *mhard-float*/*march=armv6s-m* *mhard-float*/*march=armv7-m*
++MULTILIB_EXCEPTIONS   += msoft-float*
++MULTILIB_MATCHES      += mfloat-abi?hard=mhard-float
++MULTILIB_MATCHES      += mfloat-abi?soft=msoft-float
++
++MULTILIB_OPTIONS      += mfpu=fpv4-sp-d16/mfpu=vfpv2/mfpu=vfpv3/mfpu=vfpv4/mfpu=neon/mfpu=neon-vfpv4
++MULTILIB_DIRNAMES     += fpv4-sp-d16 vfpv2 vfpv3 vfpv4 neon neon-vfpv4
++
++MULTILIB_EXCEPTIONS   += mfpu=fpv4-sp-d16* *msoft-float*/*mfpu=fpv4-sp-d16* *march=armv6/*mfpu=fpv4-sp-d16* *march=armv6s-m*/*mfpu=fpv4-sp-d16* *march=armv7/*mfpu=fpv4-sp-d16* *march=armv7-m*/*mfpu=fpv4-sp-d16*
++MULTILIB_EXCEPTIONS   += mfpu=vfpv2* *msoft-float*/*mfpu=vfpv2* *march=armv6s-m*/*mfpu=vfpv2* *march=armv7-m*/*mfpu=vfpv2* *march=armv7e-m*/*mfpu=vfpv2*
++MULTILIB_EXCEPTIONS   += mfpu=vfpv3* *msoft-float*/*mfpu=vfpv3* *march=armv6/*mfpu=vfpv3* *march=armv6s-m*/*mfpu=vfpv3* *march=armv7-m*/*mfpu=vfpv3* *march=armv7e-m*/*mfpu=vfpv3*
++MULTILIB_EXCEPTIONS   += mfpu=vfpv4* *msoft-float*/*mfpu=vfpv4* *march=armv6/*mfpu=vfpv4* *march=armv6s-m*/*mfpu=vfpv4* *march=armv7-m*/*mfpu=vfpv4* *march=armv7e-m*/*mfpu=vfpv4*
++MULTILIB_EXCEPTIONS   += mfpu=neon* *msoft-float*/*mfpu=neon* *march=armv6/*mfpu=neon* *march=armv6s-m*/*mfpu=neon* *march=armv7-m*/*mfpu=neon* *march=armv7e-m*/*mfpu=neon*
++MULTILIB_EXCEPTIONS   += mfpu=neon-vfpv4* *msoft-float*/*mfpu=neon-vfpv4* *march=armv6/*mfpu=neon-vfpv4* *march=armv6s-m*/*mfpu=neon-vfpv4* *march=armv7-m*/*mfpu=neon-vfpv4* *march=armv7e-m*/*mfpu=neon-vfpv4*
++
++MULTILIB_EXCEPTIONS   += *mthumb/mfpu=fpv4-sp-d16* *mthumb/mfpu=vfpv2* *mthumb/mfpu=vfpv3* *mthumb/mfpu=vfpv4* mthumb/mfpu=neon* *mthumb/mfpu=neon-vfpv4*
++MULTILIB_EXCEPTIONS   += *marm/mfpu=fpv4-sp-d16* *marm/mfpu=vfpv2* *marm/mfpu=vfpv3* *marm/mfpu=vfpv4* *marm/mfpu=neon* *marm/mfpu=neon-vfpv4*
++MULTILIB_EXCEPTIONS   += *march=armv7/mfpu=fpv4-sp-d16* *march=armv7/mfpu=vfpv2* *march=armv7/mfpu=vfpv3* *march=armv7/mfpu=vfpv4* *march=armv7/mfpu=neon* *march=armv7/mfpu=neon-vfpv4*
++MULTILIB_EXCEPTIONS   += *march=armv6/mfpu=fpv4-sp-d16* *march=armv6/mfpu=vfpv2* *march=armv6/mfpu=vfpv3* *march=armv6/mfpu=vfpv4* *march=armv6/mfpu=neon* *march=armv6/mfpu=neon-vfpv4*
++MULTILIB_EXCEPTIONS   += *march=armv7e-m/mfpu=fpv4-sp-d16* *march=armv7e-m/*mthumb-interwork* *march=armv7-m/*mthumb-interwork* *march=armv6s-m/*mthumb-interwork* *mthumb/mthumb-interwork*
++MULTILIB_EXCEPTIONS   += *mthumb-interwork/mfpu=fpv4-sp-d16* *mthumb-interwork/mfpu=vfpv2* *mthumb-interwork/mfpu=vfpv3*
++MULTILIB_EXCEPTIONS   += *mthumb-interwork/mfpu=vfpv4* *mthumb-interwork/mfpu=neon* *mthumb-interwork/mfpu=neon-vfpv4*
++MULTILIB_EXCEPTIONS   += mthumb *mthumb/mhard-float* *mthumb/msoft-float* *march=armv6s-m/mhard-float*
+
+
