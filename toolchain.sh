@@ -140,24 +140,26 @@ NEWLIB_FLAGS="--target=${TARGET} \
 # arm procedure call standard, probably also done without this
 # tell newlib to prefer small code...
 # ...again
-# optimize malloc for small ram (128 byte pages instead of 4096)
-# tell newlib to use 256byte buffers instead of 1024
+# optimize sbrk for small ram (128 byte pages instead of 4096)
+# tell newlib to use 128byte buffers instead of 1024
 
 #	-D_REENT_SMALL \
 #-flto -fuse-linker-plugin 
 OPTIMIZE="-ffunction-sections \
 	-fdata-sections \
 	-Os \
+	-lto \
 	-fomit-frame-pointer \
 	-fno-unroll-loops \
 	-mabi=aapcs \
 	-DPREFER_SIZE_OVER_SPEED \
 	-D__OPTIMIZE_SIZE__ \
 	-DSMALL_MEMORY \
-	-D__BUFSIZ__=256 \
+	-D__BUFSIZ__=128 \
 	-D_REENT_SMALL"
 
-#OPTIMIZE_LD="-Os -flto -fuse-linker-plugin"
+# -fuse-linker-plugin
+OPTIMIZE_LD="-Os -flto"
 
 #gcc flags
 # newlib :)
@@ -173,9 +175,6 @@ OPTIMIZE="-ffunction-sections \
 # openMP
 # pch
 # exceptions (?)
-#	--with-arch=armv7-m
-#	--with-mode=thumb
-#	--with-float=soft
 
 GCCFLAGS="--target=${TARGET} \
 	--prefix=${PREFIX} \
@@ -214,6 +213,12 @@ ${MAKE} install
 cd ..
 touch build-binutils.complete
 
+else
+
+cd build-binutils
+${MAKE} install
+cd ..
+
 fi
 
 
@@ -246,6 +251,12 @@ ${MAKE} install
 cd ..
 touch build-newlib.complete
 
+else
+
+cd build-newlib
+${MAKE} install
+cd ..
+
 fi
 
 
@@ -259,6 +270,12 @@ ${MAKE} install
 cd ..
 touch build2-gcc.complete
 
+else
+
+cd build-gcc
+${MAKE} install
+cd ..
+
 fi
 
 
@@ -271,5 +288,11 @@ ${MAKE} all -j${CPUS}
 ${MAKE} install
 cd ..
 touch build-gdb.complete
+
+else
+
+cd build-gdb
+${MAKE} install
+cd ..
 
 fi
