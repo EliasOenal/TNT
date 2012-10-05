@@ -17,6 +17,11 @@ BINUTILS_VERSION="binutils-2.22"
 GDB_URL="http://ftp.gnu.org/gnu/gdb/gdb-7.4.1.tar.gz"
 GDB_VERSION="gdb-7.4.1"
 
+STLINK_REPOSITORY="git://github.com/texane/stlink.git"
+STLINK="stlink"
+
+DO_REINSTALLS=true
+
 set -e # abort on errors
 
 OS_TYPE=$(uname)
@@ -66,6 +71,10 @@ if [ ! -e ${GDB_VERSION}.tar.gz ]; then
 ${FETCH} ${GDB_URL}
 fi
 
+if [ ! -e ${STLINK} ]; then
+git clone ${STLINK_REPOSITORY}
+fi
+
 # Extract
 if [ ! -e ${GCC_VERSION} ]; then
 ${TAR} -xf ${GCC_VERSION}.tar.bz2
@@ -75,6 +84,7 @@ fi
 if [ ! -e ${NEWLIB_VERSION} ]; then
 ${TAR} -xf ${NEWLIB_VERSION}.tar.gz
 patch -N ${NEWLIB_VERSION}/libgloss/arm/linux-crt0.c newlib-optimize.patch
+patch -N ${NEWLIB_VERSION}/newlib/libc/machine/arm/arm_asm.h newlib-lto.patch
 fi
 
 if [ ! -e ${BINUTILS_VERSION} ]; then
@@ -141,25 +151,24 @@ NEWLIB_FLAGS="--target=${TARGET} \
 # tell newlib to prefer small code...
 # ...again
 # optimize sbrk for small ram (128 byte pages instead of 4096)
-# tell newlib to use 128byte buffers instead of 1024
+# tell newlib to use 64byte buffers instead of 1024
 
 #	-D_REENT_SMALL \
-#-flto -fuse-linker-plugin 
+#-flto -fuse-linker-plugin #doesn't work that well with newlib
 OPTIMIZE="-ffunction-sections \
 	-fdata-sections \
 	-Os \
-	-lto \
 	-fomit-frame-pointer \
 	-fno-unroll-loops \
 	-mabi=aapcs \
 	-DPREFER_SIZE_OVER_SPEED \
 	-D__OPTIMIZE_SIZE__ \
 	-DSMALL_MEMORY \
-	-D__BUFSIZ__=128 \
+	-D__BUFSIZ__=64 \
 	-D_REENT_SMALL"
 
 # -fuse-linker-plugin
-OPTIMIZE_LD="-Os -flto"
+OPTIMIZE_LD="-Os"
 
 #gcc flags
 # newlib :)
@@ -213,7 +222,7 @@ ${MAKE} install
 cd ..
 touch build-binutils.complete
 
-else
+elif $DO_REINSTALLS; then
 
 cd build-binutils
 ${MAKE} install
@@ -251,7 +260,7 @@ ${MAKE} install
 cd ..
 touch build-newlib.complete
 
-else
+elif $DO_REINSTALLS; then
 
 cd build-newlib
 ${MAKE} install
@@ -270,7 +279,7 @@ ${MAKE} install
 cd ..
 touch build2-gcc.complete
 
-else
+elif $DO_REINSTALLS; then
 
 cd build-gcc
 ${MAKE} install
@@ -289,10 +298,32 @@ ${MAKE} install
 cd ..
 touch build-gdb.complete
 
-else
+elif $DO_REINSTALLS; then
 
 cd build-gdb
 ${MAKE} install
+cd ..
+
+fi
+
+
+if [ ! -e stlink.complete ]; then
+
+cd stlink
+./autogen.sh
+cd ..
+mkdir build-stlink
+cd build-stlink
+../stlink/configure --prefix=$PREFIX
+${MAKE} -j${CPUS}
+${MAKE} install
+cd ..
+touch stlink.complete
+
+elif $DO_REINSTALLS; then
+
+cd stlink
+#${MAKE} install
 cd ..
 
 fi
