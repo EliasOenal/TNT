@@ -1,6 +1,6 @@
 This is the Thumb2 Newlib Toolchain project providing a script to compile the latest GCC with Newlib and optimizations for microcontrollers.
 
-So far it only has been tested on OSX, Debian and NetBSD, feel free to push changes for your OS.
+So far it only has been tested on OSX, Debian and NetBSD, feel free to push changes for your OS. Download prebuild binaries for Linux and OSX here: http://dekar.wc3edit.net/2012/10/11/the-power-of-tnt-is-at-your-disposal/
 
 6/5/2012 - TNT has been updated to the latest Linaro GCC 4.7
 6/22/2012 - Switched to a GCC 4.8 snapshot and disabled LTO for newlib due to regressions
