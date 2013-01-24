@@ -85,9 +85,10 @@ patch -N ${GCC_VERSION}/gcc/config/arm/t-arm-elf gcc-multilib.patch
 fi
 
 if [ ! -e ${NEWLIB_VERSION} ]; then
-${TAR} -xf ${NEWLIB_VERSION}.tar.gz
+${TAR} -xf ${NEWLIB_VERSION}.tar.bz2
 patch -N ${NEWLIB_VERSION}/libgloss/arm/linux-crt0.c newlib-optimize.patch
-patch -N ${NEWLIB_VERSION}/newlib/libc/machine/arm/arm_asm.h newlib-lto.patch
+#For newlib classic only
+#patch -N ${NEWLIB_VERSION}/newlib/libc/machine/arm/arm_asm.h newlib-lto.patch
 fi
 
 if [ ! -e ${BINUTILS_VERSION} ]; then
