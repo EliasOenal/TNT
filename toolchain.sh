@@ -8,8 +8,11 @@ GCC_VERSION="gcc-linaro-4.7-2012.08"
 #GCC_URL="ftp://gcc.gnu.org/pub/gcc/snapshots/4.8-20120610/gcc-4.8-20120610.tar.bz2"
 #GCC_VERSION="gcc-4.8-20120610"
 
-NEWLIB_URL="ftp://sources.redhat.com/pub/newlib/newlib-1.20.0.tar.gz"
-NEWLIB_VERSION="newlib-1.20.0"
+#NEWLIB_URL="ftp://sources.redhat.com/pub/newlib/newlib-1.20.0.tar.gz"
+#NEWLIB_VERSION="newlib-1.20.0"
+
+NEWLIB_URL="http://dekar.wc3edit.net/newlib-nano-1.0.tar.bz2"
+NEWLIB_VERSION="newlib-nano-1.0"
 
 BINUTILS_URL="http://ftp.gnu.org/gnu/binutils/binutils-2.22.tar.gz"
 BINUTILS_VERSION="binutils-2.22"
@@ -59,7 +62,7 @@ if [ ! -e ${GCC_VERSION}.tar.bz2 ]; then
 ${FETCH} ${GCC_URL}
 fi
 
-if [ ! -e ${NEWLIB_VERSION}.tar.gz ]; then
+if [ ! -e ${NEWLIB_VERSION}.tar.bz2 ]; then
 ${FETCH} ${NEWLIB_URL}
 fi
 
