@@ -2,17 +2,31 @@
 # Thumb2 Newlib Toolchain
 # Written by Elias Önal <EliasOenal@gmail.com>, released as public domain.
 
+# re-install compiled components
+DO_REINSTALLS=true
+
+# use newlib-nano
+#NANO=true
+
+TARGET=arm-none-eabi
+PREFIX="$HOME/toolchain"
+CPUS=2
+export PATH="${PREFIX}/bin:${PATH}"
+export CC=gcc
+
 GCC_URL="https://launchpad.net/gcc-linaro/4.7/4.7-2012.08/+download/gcc-linaro-4.7-2012.08.tar.bz2"
 GCC_VERSION="gcc-linaro-4.7-2012.08"
 
 #GCC_URL="ftp://gcc.gnu.org/pub/gcc/snapshots/4.8-20120610/gcc-4.8-20120610.tar.bz2"
 #GCC_VERSION="gcc-4.8-20120610"
 
-#NEWLIB_URL="ftp://sources.redhat.com/pub/newlib/newlib-1.20.0.tar.gz"
-#NEWLIB_VERSION="newlib-1.20.0"
-
+if [ -n "$NANO" ]; then
 NEWLIB_URL="http://dekar.wc3edit.net/newlib-nano-1.0.tar.bz2"
 NEWLIB_VERSION="newlib-nano-1.0"
+else
+NEWLIB_URL="ftp://sources.redhat.com/pub/newlib/newlib-1.20.0.tar.gz"
+NEWLIB_VERSION="newlib-1.20.0"
+fi
 
 BINUTILS_URL="http://ftp.gnu.org/gnu/binutils/binutils-2.22.tar.gz"
 BINUTILS_VERSION="binutils-2.22"
@@ -22,8 +36,6 @@ GDB_VERSION="gdb-7.4.1"
 
 STLINK_REPOSITORY="git://github.com/texane/stlink.git"
 STLINK="stlink"
-
-DO_REINSTALLS=true
 
 set -e # abort on errors
 
@@ -62,9 +74,17 @@ if [ ! -e ${GCC_VERSION}.tar.bz2 ]; then
 ${FETCH} ${GCC_URL}
 fi
 
+
+if [ -n "$NANO" ]; then
 if [ ! -e ${NEWLIB_VERSION}.tar.bz2 ]; then
 ${FETCH} ${NEWLIB_URL}
 fi
+else
+if [ ! -e ${NEWLIB_VERSION}.tar.gz ]; then
+${FETCH} ${NEWLIB_URL}
+fi
+fi
+
 
 if [ ! -e ${BINUTILS_VERSION}.tar.gz ]; then
 ${FETCH} ${BINUTILS_URL}
@@ -85,10 +105,20 @@ patch -N ${GCC_VERSION}/gcc/config/arm/t-arm-elf gcc-multilib.patch
 fi
 
 if [ ! -e ${NEWLIB_VERSION} ]; then
+if [ -n "$NANO" ]; then
 ${TAR} -xf ${NEWLIB_VERSION}.tar.bz2
+else
+${TAR} -xf ${NEWLIB_VERSION}.tar.gz
+fi
+
+if [ -n "$NANO" ]; then
+patch -N ${NEWLIB_VERSION}/libgloss/arm/linux-crt0.c newlib-optimize.patch
+else
 patch -N ${NEWLIB_VERSION}/libgloss/arm/linux-crt0.c newlib-optimize.patch
 #For newlib classic only
-#patch -N ${NEWLIB_VERSION}/newlib/libc/machine/arm/arm_asm.h newlib-lto.patch
+patch -N ${NEWLIB_VERSION}/newlib/libc/machine/arm/arm_asm.h newlib-lto.patch
+fi
+
 fi
 
 if [ ! -e ${BINUTILS_VERSION} ]; then
@@ -98,13 +128,6 @@ fi
 if [ ! -e ${GDB_VERSION} ]; then
 ${TAR} -xf ${GDB_VERSION}.tar.gz
 fi
-
-# Configure (to the operating system)
-TARGET=arm-none-eabi
-PREFIX="$HOME/toolchain"
-CPUS=2
-export PATH="${PREFIX}/bin:${PATH}"
-export CC=gcc
 
 case "$OS_TYPE" in
     "Linux" )
@@ -226,7 +249,7 @@ ${MAKE} install
 cd ..
 touch build-binutils.complete
 
-elif $DO_REINSTALLS; then
+elif [ -n "$DO_REINSTALLS" ]; then
 
 cd build-binutils
 ${MAKE} install
@@ -264,7 +287,7 @@ ${MAKE} install
 cd ..
 touch build-newlib.complete
 
-elif $DO_REINSTALLS; then
+elif [ -n "$DO_REINSTALLS" ]; then
 
 cd build-newlib
 ${MAKE} install
@@ -283,7 +306,7 @@ ${MAKE} install
 cd ..
 touch build2-gcc.complete
 
-elif $DO_REINSTALLS; then
+elif [ -n "$DO_REINSTALLS" ]; then
 
 cd build-gcc
 ${MAKE} install
@@ -302,7 +325,7 @@ ${MAKE} install
 cd ..
 touch build-gdb.complete
 
-elif $DO_REINSTALLS; then
+elif [ -n "$DO_REINSTALLS" ]; then
 
 cd build-gdb
 ${MAKE} install
@@ -324,7 +347,7 @@ ${MAKE} install
 cd ..
 touch stlink.complete
 
-elif $DO_REINSTALLS; then
+elif [ -n "$DO_REINSTALLS" ]; then
 
 cd stlink
 #${MAKE} install
