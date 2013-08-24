@@ -16,8 +16,8 @@ TARGET=arm-none-eabi
 PREFIX="$HOME/toolchain"
 CPUS=2
 export PATH="${PREFIX}/bin:${PATH}"
-export CC=gcc-mp-4.8
-export CXX=g++-mp-4.8
+export CC=gcc
+export CXX=g++
 
 #GCC_URL="https://launchpad.net/gcc-linaro/4.7/4.7-2012.08/+download/gcc-linaro-4.7-2012.08.tar.bz2"
 #GCC_VERSION="gcc-linaro-4.7-2012.08"
