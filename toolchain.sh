@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
 # Thumb2 Newlib Toolchain
-# Written by Elias Önal <EliasOenal@gmail.com>, released as public domain.
+# Written and placed into the public domain by
+# Elias Oenal <tnt@eliasoenal.com>
 
 # re-install compiled components
 #DO_REINSTALLS=true
+
+#Make stuff small
+SIZE_OVER_SPEED=true
 
 # use newlib-nano
 #NANO=true
@@ -12,30 +16,31 @@ TARGET=arm-none-eabi
 PREFIX="$HOME/toolchain"
 CPUS=2
 export PATH="${PREFIX}/bin:${PATH}"
-export CC=gcc
+export CC=gcc-mp-4.8
+export CXX=g++-mp-4.8
 
 #GCC_URL="https://launchpad.net/gcc-linaro/4.7/4.7-2012.08/+download/gcc-linaro-4.7-2012.08.tar.bz2"
 #GCC_VERSION="gcc-linaro-4.7-2012.08"
 
-GCC_URL="https://launchpad.net/gcc-linaro/4.8/gcc-linaro-4.8-2013.06-1/+download/gcc-linaro-4.8-2013.06-1.tar.xz"
-GCC_VERSION="gcc-linaro-4.8-2013.06-1"
+GCC_URL="https://launchpad.net/gcc-linaro/4.8/4.8-2013.08/+download/gcc-linaro-4.8-2013.08.tar.xz"
+GCC_VERSION="gcc-linaro-4.8-2013.08"
 
 #GCC_URL="ftp://gcc.gnu.org/pub/gcc/snapshots/4.8-20120610/gcc-4.8-20120610.tar.bz2"
 #GCC_VERSION="gcc-4.8-20120610"
 
 if [ -n "$NANO" ]; then
-NEWLIB_URL="http://dekar.wc3edit.net/newlib-nano-1.0.tar.bz2"
+NEWLIB_URL="http://eliasoenal.com/newlib-nano-1.0.tar.bz2"
 NEWLIB_VERSION="newlib-nano-1.0"
 else
 NEWLIB_URL="ftp://sourceware.org/pub/newlib/newlib-2.0.0.tar.gz"
 NEWLIB_VERSION="newlib-2.0.0"
 fi
 
-BINUTILS_URL="http://ftp.gnu.org/gnu/binutils/binutils-2.22.tar.gz"
-BINUTILS_VERSION="binutils-2.22"
+BINUTILS_URL="http://ftp.gnu.org/gnu/binutils/binutils-2.23.tar.gz"
+BINUTILS_VERSION="binutils-2.23"
 
-GDB_URL="http://ftp.gnu.org/gnu/gdb/gdb-7.4.1.tar.gz"
-GDB_VERSION="gdb-7.4.1"
+GDB_URL="http://ftp.gnu.org/gnu/gdb/gdb-7.6.tar.gz"
+GDB_VERSION="gdb-7.6"
 
 STLINK_REPOSITORY="git://github.com/texane/stlink.git"
 STLINK="stlink"
@@ -118,7 +123,7 @@ if [ -n "$NANO" ]; then
 patch -N ${NEWLIB_VERSION}/libgloss/arm/linux-crt0.c newlib-optimize.patch
 else
 patch -N ${NEWLIB_VERSION}/libgloss/arm/linux-crt0.c newlib-optimize.patch
-#For newlib classic only
+# LTO patch for newlib
 patch -N ${NEWLIB_VERSION}/newlib/libc/machine/arm/arm_asm.h newlib-lto.patch
 fi
 
@@ -157,63 +162,73 @@ OPT_LIBS="--with-gmp=${OPT_PATH} \
 fi
 
 
-
+if [ -n "$SIZE_OVER_SPEED" ]; then
+SIZE_VS_SPEED_NEWLIB="--enable-target-optspace \
+			--enable-newlib-reent-small"
+else
+SIZE_VS_SPEED_NEWLIB=""
+fi
 
 #newlib
 NEWLIB_FLAGS="--target=${TARGET} \
 		--prefix=${PREFIX} \
+		${SIZE_VS_SPEED_NEWLIB} \
 		--with-build-time-tools=${PREFIX}/bin \
 		--with-sysroot=${PREFIX}/${TARGET} \
 		--disable-shared \
 		--disable-newlib-supplied-syscalls \
-		--enable-newlib-reent-small \
-		--enable-target-optspace \
 		--enable-multilib \
-		--enable-interwork"
+		--enable-interwork \
+		--enable-newlib-io-c99-formats \
+		--enable-newlib-io-long-long"
+
+#		--newlib-hw-fp \ # Seemingly deprecated
+#		--enable-lto \ # LTO still doesn't work :/
 
 
-# split functions into small sections for link time garbage collection
-# split data into sections as well
-# tell gcc to optimize for size
-# we don't need a frame pointer -> one more register :)
-# never unroll loops
-# arm procedure call standard, probably also done without this
-# tell newlib to prefer small code...
-# ...again
-# optimize sbrk for small ram (128 byte pages instead of 4096)
-# tell newlib to use 64byte buffers instead of 1024
+if [ -n "$SIZE_OVER_SPEED" ]; then
+SIZE_VS_SPEED_OPTIMIZE="-Os \
+			-DPREFER_SIZE_OVER_SPEED \
+			-D__OPTIMIZE_SIZE__ \
+			-D__BUFSIZ__=64 \
+			-D_REENT_SMALL \
+			-fno-unroll-loops"
+else
+SIZE_VS_SPEED_OPTIMIZE="-O3 \
+			-D__BUFSIZ__=256"
+fi
 
-#	-D_REENT_SMALL \
-#-flto -fuse-linker-plugin #doesn't work that well with newlib
+# -ffunction-sections split functions into small sections for link time garbage collection
+# -fdata-sections split data into sections as well
+# -Os tell gcc to optimize for size
+# -fomit-frame-pointer we don't need a frame pointer -> one more register :)
+# -fno-unroll-loops never unroll loops
+# -mabi=aapcs arm procedure call standard, probably also done without this
+# -DPREFER_SIZE_OVER_SPEED tell newlib to prefer small code...
+# -D__OPTIMIZE_SIZE__ ...again
+# -DSMALL_MEMORY optimize sbrk for small ram (128 byte pages instead of 4096)
+# -D__BUFSIZ__=64 tell newlib to use 64byte buffers instead of 1024
+
 OPTIMIZE="-ffunction-sections \
 	-fdata-sections \
-	-Os \
 	-fomit-frame-pointer \
-	-fno-unroll-loops \
 	-mabi=aapcs \
-	-DPREFER_SIZE_OVER_SPEED \
-	-D__OPTIMIZE_SIZE__ \
+	${SIZE_VS_SPEED_OPTIMIZE} \
 	-DSMALL_MEMORY \
-	-D__BUFSIZ__=64 \
-	-D_REENT_SMALL"
+	-ffast-math \
+	-ftree-vectorize"
 
-# -fuse-linker-plugin
-OPTIMIZE_LD="-Os"
+#-flto -fuse-linker-plugin # Everything goes into .text and gets discarded :/
+
+#  -flto -fuse-linker-plugin
+OPTIMIZE_LD="${OPTIMIZE}"
 
 #gcc flags
-# newlib :)
-# static linking for uber huge binaries
-# that's our cortex-m3
-# speaking thumb2
-# no fpu for my cortex-m3
-# we don't care about gcc translations
-# prevent accidentally linking x86er/host libs
-# lib stack smashing protection fails to build for our target (probably related to newlib)
-# link time optimizations
-# debugging lib
-# openMP
-# pch
-# exceptions (?)
+# --with-newlib -> newlib :)
+# --disable-shared static linking for uber huge binaries
+# --enable-poison-system-directories prevent accidentally linking x86er/host libs
+# --disable-libssp lib stack smashing protection fails to build for our target (probably related to newlib)
+# --enable-lto link time optimizations
 
 GCCFLAGS="--target=${TARGET} \
 	--prefix=${PREFIX} \
