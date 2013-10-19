@@ -237,7 +237,6 @@ GCCFLAGS="--target=${TARGET} \
 	--with-build-time-tools=${PREFIX}/${TARGET}/bin \
 	--with-sysroot=${PREFIX}/${TARGET} \
 	--disable-shared \
-	--enable-multilib \
 	--enable-interwork \
 	--disable-nls \
 	--enable-poison-system-directories \
