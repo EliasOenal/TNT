@@ -12,6 +12,8 @@ SIZE_OVER_SPEED=true
 # use newlib-nano
 #NANO=true
 
+#BUILD_STLINK=true
+
 TARGET=arm-none-eabi
 PREFIX="$HOME/toolchain"
 CPUS=2
@@ -102,8 +104,10 @@ if [ ! -e ${GDB_VERSION}.tar.gz ]; then
 ${FETCH} ${GDB_URL}
 fi
 
+if [ -n "$BUILD_STLINK" ]; then
 if [ ! -e ${STLINK} ]; then
 git clone ${STLINK_REPOSITORY}
+fi
 fi
 
 # Extract
@@ -350,7 +354,7 @@ cd ..
 
 fi
 
-
+if [ -n "$BUILD_STLINK" ]; then
 if [ ! -e stlink.complete ]; then
 
 cd stlink
@@ -370,4 +374,5 @@ cd stlink
 ${MAKE} install
 cd ..
 
+fi
 fi
