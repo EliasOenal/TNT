@@ -1,6 +1,6 @@
 --- t-arm-elf.orig	2012-09-09 21:18:49.000000000 +0200
 +++ gcc-linaro-4.7-2012.08/gcc/config/arm/t-arm-elf	2012-09-11 17:00:04.000000000 +0200
-@@ -17,75 +17,31 @@
+@@ -17,75 +17,29 @@
  # along with GCC; see the file COPYING3.  If not see
  # <http://www.gnu.org/licenses/>.
  
@@ -84,23 +84,21 @@
 +
 +MULTILIB_OPTIONS      += mthumb
 +MULTILIB_DIRNAMES     += thumb
-+MULTILIB_EXCEPTIONS   += mthumb
-+MULTILIB_EXCEPTIONS   += / .
++MULTILIB_EXCEPTIONS   += *
 +
 +MULTILIB_OPTIONS      += march=armv6s-m/march=armv7-m/march=armv7e-m
 +MULTILIB_DIRNAMES     += armv6s-m armv7-m armv7e-m
-+
-+MULTILIB_EXCEPTIONS   += march=armv6s-m march=armv6s-m/*
-+MULTILIB_EXCEPTIONS   += march=armv7-m march=armv7-m/*
-+MULTILIB_EXCEPTIONS   += march=armv7e-m march=armv7e-m/*
++MULTILIB_EXCEPTIONS   += *
 +
 +MULTILIB_OPTIONS      += mfloat-abi=hard
 +MULTILIB_DIRNAMES     += fpu
-+MULTILIB_EXCEPTIONS   += mfloat-abi=hard* *mfloat-abi=hard mthumb/mfloat-abi=hard*
++MULTILIB_EXCEPTIONS   += *
 +
 +MULTILIB_OPTIONS      += mfpu=fpv4-sp-d16
 +MULTILIB_DIRNAMES     += fpv4-sp-d16
-+MULTILIB_EXCEPTIONS   += mfpu=fpv4-sp-d16*
-+MULTILIB_EXCEPTIONS   += *march=armv6s-m/*mfpu=fpv4-sp-d16 *march=armv7-m/*mfpu=fpv4-sp-d16
-+MULTILIB_EXCEPTIONS   += mthumb/mfpu=fpv4-sp-d16 *march=armv7e-m/mfpu=fpv4-sp-d16
++MULTILIB_EXCEPTIONS   += *
 +
++MULTILIB_REQUIRED +=  mthumb/march=armv6s-m
++MULTILIB_REQUIRED +=  mthumb/march=armv7-m
++MULTILIB_REQUIRED +=  mthumb/march=armv7e-m
++MULTILIB_REQUIRED +=  mthumb/march=armv7e-m/mfloat-abi=hard/mfpu=fpv4-sp-d16

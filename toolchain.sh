@@ -6,11 +6,17 @@
 # re-install compiled components
 #DO_REINSTALLS=true
 
-#Make stuff small
+# Make stuff small
 SIZE_OVER_SPEED=true
 
-# use newlib-nano
+# use newlib-nano-1.0
 #NANO=true
+
+# C++ support
+#BUILD_CPP=true
+
+# GNU Debugger
+#BUILD_GDB=true
 
 #BUILD_STLINK=true
 
@@ -249,6 +255,9 @@ GCCFLAGS="--target=${TARGET} \
 	--disable-libmudflap \
 	--disable-libgomp \
 	--disable-libstdcxx-pch \
+	--disable-libssp \
+	--disable-tls \
+	--disable-threads \
 	--disable-libunwind-exceptions"
 
 # only build c the first time
@@ -286,9 +295,19 @@ cd build-gcc
 ../${GCC_VERSION}/configure ${GCCFLAGS} ${GCCFLAGS_ONE}
 ${MAKE} all-gcc -j${CPUS} CFLAGS_FOR_TARGET="${OPTIMIZE}" \
     LDFLAGS_FOR_TARGET="${OPTIMIZE_LD}"
+${MAKE} all-target-libgcc -j${CPUS} CFLAGS_FOR_TARGET="${OPTIMIZE}" \
+    LDFLAGS_FOR_TARGET="${OPTIMIZE_LD}"
 ${MAKE} install-gcc
+${MAKE} install-target-libgcc
 cd ..
 touch build-gcc.complete
+
+elif [ -n "$DO_REINSTALLS" ]; then
+
+cd build-gcc
+${MAKE} install-gcc
+${MAKE} install-target-libgcc
+cd ..
 
 fi
 
@@ -299,9 +318,6 @@ mkdir build-newlib
 cd build-newlib
 ../${NEWLIB_VERSION}/configure ${NEWLIB_FLAGS}
 
-# Use "_REENT_INIT_PTR()" for reentrancy
-#-DREENTRANT_SYSCALLS_PROVIDED \
-#		-DMISSING_SYSCALL_NAMES -D__DYNAMIC_REENT__
 ${MAKE} all -j${CPUS} CFLAGS_FOR_TARGET="${OPTIMIZE}" LDFLAGS_FOR_TARGET="${OPTIMIZE_LD}"
 
 ${MAKE} install
@@ -316,7 +332,7 @@ cd ..
 
 fi
 
-
+if [ -n "$BUILD_CPP" ]; then
 if [ ! -e build2-gcc.complete ]; then
 
 cd build-gcc
@@ -334,8 +350,9 @@ ${MAKE} install
 cd ..
 
 fi
+fi
 
-
+if [ -n "$BUILD_GDB" ]; then
 if [ ! -e build-gdb.complete ]; then
 
 mkdir build-gdb
@@ -352,6 +369,7 @@ cd build-gdb
 ${MAKE} install
 cd ..
 
+fi
 fi
 
 if [ -n "$BUILD_STLINK" ]; then
