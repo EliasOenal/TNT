@@ -7,6 +7,7 @@
 #DO_REINSTALLS=true
 
 # Make stuff small
+# NOTE: There's a bug in Newlib's memset() when optimizing for speed over size. 
 SIZE_OVER_SPEED=true
 
 # use newlib-nano-1.0
@@ -17,6 +18,9 @@ SIZE_OVER_SPEED=true
 
 # GNU Debugger
 #BUILD_GDB=true
+
+# Insight graphical GDB interface
+#BUILD_INSIGHT=true
 
 #BUILD_STLINK=true
 
@@ -52,6 +56,10 @@ GDB_VERSION="gdb-7.6"
 
 STLINK_REPOSITORY="git://github.com/texane/stlink.git"
 STLINK="stlink"
+
+INSIGHT_URL="ftp://sourceware.org/pub/insight/releases/insight-6.8-1a.tar.bz2"
+INSIGHT_VERSION="insight-6.8-1a"
+INSIGHT_FOLDER="insight-6.8-1"
 
 set -e # abort on errors
 
@@ -106,13 +114,21 @@ if [ ! -e ${BINUTILS_VERSION}.tar.gz ]; then
 ${FETCH} ${BINUTILS_URL}
 fi
 
+if [ -n "$BUILD_GDB" ]; then
 if [ ! -e ${GDB_VERSION}.tar.gz ]; then
 ${FETCH} ${GDB_URL}
+fi
 fi
 
 if [ -n "$BUILD_STLINK" ]; then
 if [ ! -e ${STLINK} ]; then
 git clone ${STLINK_REPOSITORY}
+fi
+fi
+
+if [ -n "$BUILD_INSIGHT" ]; then
+if [ ! -e ${INSIGHT_VERSION}.tar.bz2 ]; then
+${FETCH} ${INSIGHT_URL}
 fi
 fi
 
@@ -143,8 +159,16 @@ if [ ! -e ${BINUTILS_VERSION} ]; then
 ${TAR} -xf ${BINUTILS_VERSION}.tar.gz
 fi
 
+if [ -n "$BUILD_GDB" ]; then
 if [ ! -e ${GDB_VERSION} ]; then
 ${TAR} -xf ${GDB_VERSION}.tar.gz
+fi
+fi
+
+if [ -n "$BUILD_INSIGHT" ]; then
+if [ ! -e ${INSIGHT_FOLDER} ]; then
+${TAR} -xf ${INSIGHT_VERSION}.tar.bz2
+fi
 fi
 
 case "$OS_TYPE" in
@@ -267,6 +291,27 @@ GCCFLAGS_ONE="--without-headers --enable-languages=c"
 GCCFLAGS_TWO="--enable-languages=c,c++ --disable-libssp"
 
 
+if [ -n "$BUILD_INSIGHT" ]; then
+if [ ! -e build-insight.complete ]; then
+
+mkdir build-insight
+cd build-insight
+../${INSIGHT_FOLDER}/configure ${OPT_LIBS} --disable-werror --enable-multilib --enable-interwork --target=$TARGET --prefix=$PREFIX
+${MAKE} -j${CPUS}
+${MAKE} install
+cd ..
+touch build-insight.complete
+
+elif [ -n "$DO_REINSTALLS" ]; then
+
+cd build-insight
+${MAKE} install
+cd ..
+
+fi
+fi
+
+
 if [ ! -e build-binutils.complete ]; then
 
 mkdir build-binutils
@@ -332,6 +377,7 @@ cd ..
 
 fi
 
+
 if [ -n "$BUILD_CPP" ]; then
 if [ ! -e build2-gcc.complete ]; then
 
@@ -352,12 +398,13 @@ cd ..
 fi
 fi
 
+
 if [ -n "$BUILD_GDB" ]; then
 if [ ! -e build-gdb.complete ]; then
 
 mkdir build-gdb
 cd build-gdb
-../${GDB_VERSION}/configure --enable-multilib --enable-interwork --target=$TARGET --prefix=$PREFIX
+../${GDB_VERSION}/configure --enable-multilib --enable-interwork --enable-sim --enable-sim-stdio --target=$TARGET --prefix=$PREFIX
 ${MAKE} all -j${CPUS}
 ${MAKE} install
 cd ..
@@ -394,3 +441,4 @@ cd ..
 
 fi
 fi
+
