@@ -1,10 +1,11 @@
 This is the Thumb2 Newlib Toolchain project providing a script to compile the latest GCC with Newlib and optimizations for microcontrollers.
 
-So far it only has been tested on OSX, Debian and NetBSD, feel free to push changes for your OS. Download prebuilt binaries for Linux and OSX here: http://eliasoenal.com/2012/10/11/the-power-of-tnt-is-at-your-disposal/
+So far it only has been tested on OSX, Debian and NetBSD, feel free to push changes for your OS.
 
-8/24/2013 - Additional optimization option preferring speed over size
-1/24/2013 - Replaced newlib with newlib-nano, the newlib option is still in the build script.
-6/5/2012 - TNT has been updated to the latest Linaro GCC 4.7
-6/22/2012 - Switched to a GCC 4.8 snapshot and disabled LTO for newlib due to regressions
-8/29/2012 - Switched to the latest Linaro GCC for minor size improvements, also configured newlib with "reent-small" for 800byte savings in .data
-9/10/2012 - Multilib support for several thumb targets: armv6s-m (cortex-m0/cortex-m1) armv7-m (cortex-m3) armv7e-m (cortex-m4/cortex-m4f including FPU and DSP instruction support)
+03/19/2014 - The latest everything. GCC 4.9 (snapshot), Newlib 2.1.0 (nano-malloc) and more!
+08/24/2013 - Additional optimization option preferring speed over size
+01/24/2013 - Replaced newlib with newlib-nano, the newlib option is still in the build script.
+06/05/2012 - TNT has been updated to the latest Linaro GCC 4.7
+06/22/2012 - Switched to a GCC 4.8 snapshot and disabled LTO for newlib due to regressions
+08/29/2012 - Switched to the latest Linaro GCC for minor size improvements, also configured newlib with "reent-small" for 800byte savings in .data
+09/10/2012 - Multilib support for several thumb targets: armv6s-m (cortex-m0/cortex-m1) armv7-m (cortex-m3) armv7e-m (cortex-m4/cortex-m4f including FPU and DSP instruction support)

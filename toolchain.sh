@@ -26,7 +26,7 @@ SIZE_OVER_SPEED=true
 
 TARGET=arm-none-eabi
 PREFIX="$HOME/toolchain"
-CPUS=2
+CPUS=8
 export PATH="${PREFIX}/bin:${PATH}"
 export CC=gcc
 export CXX=g++
@@ -34,25 +34,25 @@ export CXX=g++
 #GCC_URL="https://launchpad.net/gcc-linaro/4.7/4.7-2012.08/+download/gcc-linaro-4.7-2012.08.tar.bz2"
 #GCC_VERSION="gcc-linaro-4.7-2012.08"
 
-GCC_URL="https://launchpad.net/gcc-linaro/4.8/4.8-2013.08/+download/gcc-linaro-4.8-2013.08.tar.xz"
-GCC_VERSION="gcc-linaro-4.8-2013.08"
+#GCC_URL="https://launchpad.net/gcc-linaro/4.8/4.8-2013.08/+download/gcc-linaro-4.8-2013.08.tar.xz"
+#GCC_VERSION="gcc-linaro-4.8-2013.08"
 
-#GCC_URL="ftp://gcc.gnu.org/pub/gcc/snapshots/4.8-20120610/gcc-4.8-20120610.tar.bz2"
-#GCC_VERSION="gcc-4.8-20120610"
+GCC_URL="ftp://gcc.gnu.org/pub/gcc/snapshots/4.9-20140316/gcc-4.9-20140316.tar.bz2"
+GCC_VERSION="gcc-4.9-20140316"
 
 if [ -n "$NANO" ]; then
 NEWLIB_URL="http://eliasoenal.com/newlib-nano-1.0.tar.bz2"
 NEWLIB_VERSION="newlib-nano-1.0"
 else
-NEWLIB_URL="ftp://sourceware.org/pub/newlib/newlib-2.0.0.tar.gz"
-NEWLIB_VERSION="newlib-2.0.0"
+NEWLIB_URL="ftp://sourceware.org/pub/newlib/newlib-2.1.0.tar.gz"
+NEWLIB_VERSION="newlib-2.1.0"
 fi
 
-BINUTILS_URL="http://ftp.gnu.org/gnu/binutils/binutils-2.23.tar.gz"
-BINUTILS_VERSION="binutils-2.23"
+BINUTILS_URL="http://ftp.gnu.org/gnu/binutils/binutils-2.24.tar.gz"
+BINUTILS_VERSION="binutils-2.24"
 
-GDB_URL="http://ftp.gnu.org/gnu/gdb/gdb-7.6.tar.gz"
-GDB_VERSION="gdb-7.6"
+GDB_URL="http://ftp.gnu.org/gnu/gdb/gdb-7.7.tar.gz"
+GDB_VERSION="gdb-7.7"
 
 STLINK_REPOSITORY="git://github.com/texane/stlink.git"
 STLINK="stlink"
@@ -94,7 +94,7 @@ exit
 fi
 
 # Download
-if [ ! -e ${GCC_VERSION}.tar.xz ]; then
+if [ ! -e ${GCC_VERSION}.tar.bz2 ]; then
 ${FETCH} ${GCC_URL}
 fi
 
@@ -134,7 +134,7 @@ fi
 
 # Extract
 if [ ! -e ${GCC_VERSION} ]; then
-${TAR} -xf ${GCC_VERSION}.tar.xz
+${TAR} -xf ${GCC_VERSION}.tar.bz2
 patch -N ${GCC_VERSION}/gcc/config/arm/t-arm-elf gcc-multilib.patch
 fi
 
@@ -151,6 +151,8 @@ else
 patch -N ${NEWLIB_VERSION}/libgloss/arm/linux-crt0.c newlib-optimize.patch
 # LTO patch for newlib
 patch -N ${NEWLIB_VERSION}/newlib/libc/machine/arm/arm_asm.h newlib-lto.patch
+#fix regression in 2.1.0
+patch -N ${NEWLIB_VERSION}/libgloss/arm/cpu-init/Makefile.in newlib-2.1.0_libgloss_regression.patch
 fi
 
 fi
@@ -179,6 +181,8 @@ case "$OS_TYPE" in
     OPT_PATH=/usr/local
     ;;
     "Darwin" )
+    export CC=gcc-mp-4.8
+    export CXX=g++-mp-4.8
     OPT_PATH=/opt/local
     ;;
     * )
@@ -198,7 +202,7 @@ fi
 
 if [ -n "$SIZE_OVER_SPEED" ]; then
 SIZE_VS_SPEED_NEWLIB="--enable-target-optspace \
-			--enable-newlib-reent-small"
+                    --enable-newlib-reent-small"
 else
 SIZE_VS_SPEED_NEWLIB=""
 fi
@@ -213,11 +217,10 @@ NEWLIB_FLAGS="--target=${TARGET} \
 		--disable-newlib-supplied-syscalls \
 		--enable-multilib \
 		--enable-interwork \
-		--enable-newlib-io-c99-formats \
-		--enable-newlib-io-long-long"
-
-#		--newlib-hw-fp \ # Seemingly deprecated
-#		--enable-lto \ # LTO still doesn't work :/
+		--enable-newlib-nano-malloc \
+        	--enable-newlib-io-c99-formats \
+		--enable-newlib-io-long-long \
+        	--enable-lto"
 
 
 if [ -n "$SIZE_OVER_SPEED" ]; then
@@ -245,13 +248,13 @@ fi
 
 OPTIMIZE="-ffunction-sections \
 	-fdata-sections \
-	-fomit-frame-pointer \
 	-mabi=aapcs \
 	${SIZE_VS_SPEED_OPTIMIZE} \
 	-DSMALL_MEMORY \
 	-ffast-math \
 	-ftree-vectorize"
 
+#	-fomit-frame-pointer \
 #-flto -fuse-linker-plugin # Everything goes into .text and gets discarded :/
 
 #  -flto -fuse-linker-plugin
@@ -282,7 +285,8 @@ GCCFLAGS="--target=${TARGET} \
 	--disable-libssp \
 	--disable-tls \
 	--disable-threads \
-	--disable-libunwind-exceptions"
+	--disable-libunwind-exceptions \
+	--enable-checking=release"
 
 # only build c the first time
 GCCFLAGS_ONE="--without-headers --enable-languages=c"
