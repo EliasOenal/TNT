@@ -37,8 +37,8 @@ export CXX=g++
 #GCC_URL="https://launchpad.net/gcc-linaro/4.8/4.8-2013.08/+download/gcc-linaro-4.8-2013.08.tar.xz"
 #GCC_VERSION="gcc-linaro-4.8-2013.08"
 
-GCC_URL="ftp://gcc.gnu.org/pub/gcc/snapshots/4.9-20140316/gcc-4.9-20140316.tar.bz2"
-GCC_VERSION="gcc-4.9-20140316"
+GCC_URL="http://ftp.gnu.org/gnu/gcc/gcc-4.9.0/gcc-4.9.0.tar.bz2"
+GCC_VERSION="gcc-4.9.0"
 
 if [ -n "$NANO" ]; then
 NEWLIB_URL="http://eliasoenal.com/newlib-nano-1.0.tar.bz2"
@@ -298,7 +298,7 @@ GCCFLAGS_TWO="--enable-languages=c,c++ --disable-libssp"
 if [ -n "$BUILD_INSIGHT" ]; then
 if [ ! -e build-insight.complete ]; then
 
-mkdir build-insight
+mkdir -p build-insight
 cd build-insight
 ../${INSIGHT_FOLDER}/configure ${OPT_LIBS} --disable-werror --enable-multilib --enable-interwork --target=$TARGET --prefix=$PREFIX
 ${MAKE} -j${CPUS}
@@ -318,7 +318,7 @@ fi
 
 if [ ! -e build-binutils.complete ]; then
 
-mkdir build-binutils
+mkdir -p build-binutils
 cd build-binutils
 ../${BINUTILS_VERSION}/configure --target=${TARGET} --prefix=${PREFIX} \
         --with-sysroot=${PREFIX}/${TARGET} --disable-nls --enable-gold \
@@ -339,7 +339,7 @@ fi
 
 if [ ! -e build-gcc.complete ]; then
 
-mkdir build-gcc
+mkdir -p build-gcc
 cd build-gcc
 ../${GCC_VERSION}/configure ${GCCFLAGS} ${GCCFLAGS_ONE}
 ${MAKE} all-gcc -j${CPUS} CFLAGS_FOR_TARGET="${OPTIMIZE}" \
@@ -363,7 +363,7 @@ fi
 
 if [ ! -e build-newlib.complete ]; then
 
-mkdir build-newlib
+mkdir -p build-newlib
 cd build-newlib
 ../${NEWLIB_VERSION}/configure ${NEWLIB_FLAGS}
 
@@ -406,7 +406,7 @@ fi
 if [ -n "$BUILD_GDB" ]; then
 if [ ! -e build-gdb.complete ]; then
 
-mkdir build-gdb
+mkdir -p build-gdb
 cd build-gdb
 ../${GDB_VERSION}/configure --enable-multilib --enable-interwork --enable-sim --enable-sim-stdio --target=$TARGET --prefix=$PREFIX
 ${MAKE} all -j${CPUS}
@@ -429,7 +429,7 @@ if [ ! -e stlink.complete ]; then
 cd stlink
 ./autogen.sh
 cd ..
-mkdir build-stlink
+mkdir -p build-stlink
 cd build-stlink
 ../stlink/configure --prefix=$PREFIX
 ${MAKE} -j${CPUS}
@@ -446,3 +446,7 @@ cd ..
 fi
 fi
 
+echo ""
+echo "###########################"
+echo "# Succeeded building TNT! #"
+echo "###########################"
