@@ -31,28 +31,22 @@ export PATH="${PREFIX}/bin:${PATH}"
 export CC=gcc
 export CXX=g++
 
-#GCC_URL="https://launchpad.net/gcc-linaro/4.7/4.7-2012.08/+download/gcc-linaro-4.7-2012.08.tar.bz2"
-#GCC_VERSION="gcc-linaro-4.7-2012.08"
-
-#GCC_URL="https://launchpad.net/gcc-linaro/4.8/4.8-2013.08/+download/gcc-linaro-4.8-2013.08.tar.xz"
-#GCC_VERSION="gcc-linaro-4.8-2013.08"
-
-GCC_URL="http://ftp.gnu.org/gnu/gcc/gcc-4.9.0/gcc-4.9.0.tar.bz2"
-GCC_VERSION="gcc-4.9.0"
+GCC_URL="http://ftp.gnu.org/gnu/gcc/gcc-4.9.2/gcc-4.9.2.tar.bz2"
+GCC_VERSION="gcc-4.9.2"
 
 if [ -n "$NANO" ]; then
 NEWLIB_URL="http://eliasoenal.com/newlib-nano-1.0.tar.bz2"
 NEWLIB_VERSION="newlib-nano-1.0"
 else
-NEWLIB_URL="ftp://sourceware.org/pub/newlib/newlib-2.1.0.tar.gz"
-NEWLIB_VERSION="newlib-2.1.0"
+NEWLIB_URL="ftp://sourceware.org/pub/newlib/newlib-2.2.0.20150225.tar.gz"
+NEWLIB_VERSION="newlib-2.2.0.20150225"
 fi
 
-BINUTILS_URL="http://ftp.gnu.org/gnu/binutils/binutils-2.24.tar.gz"
-BINUTILS_VERSION="binutils-2.24"
+BINUTILS_URL="http://ftp.gnu.org/gnu/binutils/binutils-2.25.tar.gz"
+BINUTILS_VERSION="binutils-2.25"
 
-GDB_URL="http://ftp.gnu.org/gnu/gdb/gdb-7.7.tar.gz"
-GDB_VERSION="gdb-7.7"
+GDB_URL="http://ftp.gnu.org/gnu/gdb/gdb-7.9.tar.gz"
+GDB_VERSION="gdb-7.9"
 
 STLINK_REPOSITORY="git://github.com/texane/stlink.git"
 STLINK="stlink"
@@ -91,6 +85,12 @@ MAKE=make
 else
 echo "make required."
 exit
+fi
+
+if [ "$1" == "clean" ]; then
+	echo "cleaning up."
+	rm -rf build-*
+	exit
 fi
 
 # Download
@@ -152,7 +152,7 @@ patch -N ${NEWLIB_VERSION}/libgloss/arm/linux-crt0.c newlib-optimize.patch
 # LTO patch for newlib
 patch -N ${NEWLIB_VERSION}/newlib/libc/machine/arm/arm_asm.h newlib-lto.patch
 #fix regression in 2.1.0
-patch -N ${NEWLIB_VERSION}/libgloss/arm/cpu-init/Makefile.in newlib-2.1.0_libgloss_regression.patch
+#patch -N ${NEWLIB_VERSION}/libgloss/arm/cpu-init/Makefile.in newlib-2.1.0_libgloss_regression.patch
 fi
 
 fi
@@ -194,32 +194,32 @@ if [ "$OPT_PATH" == "" ]; then
 OPT_LIBS=""
 else
 OPT_LIBS="--with-gmp=${OPT_PATH} \
-	--with-mpfr=${OPT_PATH} \
-	--with-mpc=${OPT_PATH} \
-	--with-libiconv-prefix=${OPT_PATH}"
+			--with-mpfr=${OPT_PATH} \
+			--with-mpc=${OPT_PATH} \
+			--with-libiconv-prefix=${OPT_PATH}"
 fi
 
 
 if [ -n "$SIZE_OVER_SPEED" ]; then
 SIZE_VS_SPEED_NEWLIB="--enable-target-optspace \
-                    --enable-newlib-reent-small"
+            --enable-newlib-reent-small"
 else
 SIZE_VS_SPEED_NEWLIB=""
 fi
 
 #newlib
 NEWLIB_FLAGS="--target=${TARGET} \
-		--prefix=${PREFIX} \
-		${SIZE_VS_SPEED_NEWLIB} \
-		--with-build-time-tools=${PREFIX}/bin \
-		--with-sysroot=${PREFIX}/${TARGET} \
-		--disable-shared \
-		--disable-newlib-supplied-syscalls \
-		--enable-multilib \
-		--enable-interwork \
-		--enable-newlib-nano-malloc \
+			--prefix=${PREFIX} \
+			${SIZE_VS_SPEED_NEWLIB} \
+			--with-build-time-tools=${PREFIX}/bin \
+			--with-sysroot=${PREFIX}/${TARGET} \
+			--disable-shared \
+			--disable-newlib-supplied-syscalls \
+			--enable-multilib \
+			--enable-interwork \
+			--enable-newlib-nano-malloc \
         	--enable-newlib-io-c99-formats \
-		--enable-newlib-io-long-long \
+			--enable-newlib-io-long-long \
         	--enable-lto"
 
 
@@ -231,8 +231,8 @@ SIZE_VS_SPEED_OPTIMIZE="-Os \
 			-D_REENT_SMALL \
 			-fno-unroll-loops"
 else
-SIZE_VS_SPEED_OPTIMIZE="-O3 \
-			-D__BUFSIZ__=256"
+SIZE_VS_SPEED_OPTIMIZE="-Os \
+			-D__BUFSIZ__=1024"
 fi
 
 # -ffunction-sections split functions into small sections for link time garbage collection
@@ -247,12 +247,12 @@ fi
 # -D__BUFSIZ__=64 tell newlib to use 64byte buffers instead of 1024
 
 OPTIMIZE="-ffunction-sections \
-	-fdata-sections \
-	-mabi=aapcs \
-	${SIZE_VS_SPEED_OPTIMIZE} \
-	-DSMALL_MEMORY \
-	-ffast-math \
-	-ftree-vectorize"
+			-fdata-sections \
+			-mabi=aapcs \
+			${SIZE_VS_SPEED_OPTIMIZE} \
+			-DSMALL_MEMORY \
+			-ffast-math \
+			-ftree-vectorize"
 
 #	-fomit-frame-pointer \
 #-flto -fuse-linker-plugin # Everything goes into .text and gets discarded :/
@@ -268,25 +268,25 @@ OPTIMIZE_LD="${OPTIMIZE}"
 # --enable-lto link time optimizations
 
 GCCFLAGS="--target=${TARGET} \
-	--prefix=${PREFIX} \
-	--with-newlib \
-	${OPT_LIBS} \
-	--with-build-time-tools=${PREFIX}/${TARGET}/bin \
-	--with-sysroot=${PREFIX}/${TARGET} \
-	--disable-shared \
-	--enable-interwork \
-	--disable-nls \
-	--enable-poison-system-directories \
-	--enable-lto \
-	--enable-gold \
-	--disable-libmudflap \
-	--disable-libgomp \
-	--disable-libstdcxx-pch \
-	--disable-libssp \
-	--disable-tls \
-	--disable-threads \
-	--disable-libunwind-exceptions \
-	--enable-checking=release"
+			--prefix=${PREFIX} \
+			--with-newlib \
+			${OPT_LIBS} \
+			--with-build-time-tools=${PREFIX}/${TARGET}/bin \
+			--with-sysroot=${PREFIX}/${TARGET} \
+			--disable-shared \
+			--enable-interwork \
+			--disable-nls \
+			--enable-poison-system-directories \
+			--enable-lto \
+			--enable-gold \
+			--disable-libmudflap \
+			--disable-libgomp \
+			--disable-libstdcxx-pch \
+			--disable-libssp \
+			--disable-tls \
+			--disable-threads \
+			--disable-libunwind-exceptions \
+			--enable-checking=release"
 
 # only build c the first time
 GCCFLAGS_ONE="--without-headers --enable-languages=c"
@@ -341,10 +341,11 @@ if [ ! -e build-gcc.complete ]; then
 
 mkdir -p build-gcc
 cd build-gcc
+# There seems to be a regression that requires GCC to build with -j1 for 4.9.2 (Tested on OSX)
 ../${GCC_VERSION}/configure ${GCCFLAGS} ${GCCFLAGS_ONE}
-${MAKE} all-gcc -j${CPUS} CFLAGS_FOR_TARGET="${OPTIMIZE}" \
+${MAKE} all-gcc -j1 CFLAGS_FOR_TARGET="${OPTIMIZE}" \
     LDFLAGS_FOR_TARGET="${OPTIMIZE_LD}"
-${MAKE} all-target-libgcc -j${CPUS} CFLAGS_FOR_TARGET="${OPTIMIZE}" \
+${MAKE} all-target-libgcc -j1 CFLAGS_FOR_TARGET="${OPTIMIZE}" \
     LDFLAGS_FOR_TARGET="${OPTIMIZE_LD}"
 ${MAKE} install-gcc
 ${MAKE} install-target-libgcc
