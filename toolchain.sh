@@ -31,15 +31,15 @@ export PATH="${PREFIX}/bin:${PATH}"
 export CC=gcc
 export CXX=g++
 
-GCC_URL="http://ftp.gnu.org/gnu/gcc/gcc-4.9.2/gcc-4.9.2.tar.bz2"
-GCC_VERSION="gcc-4.9.2"
+GCC_URL="http://ftp.gnu.org/gnu/gcc/gcc-5.2.0/gcc-5.2.0.tar.bz2"
+GCC_VERSION="gcc-5.2.0"
 
 if [ -n "$NANO" ]; then
 NEWLIB_URL="http://eliasoenal.com/newlib-nano-1.0.tar.bz2"
 NEWLIB_VERSION="newlib-nano-1.0"
 else
-NEWLIB_URL="ftp://sourceware.org/pub/newlib/newlib-2.2.0.20150225.tar.gz"
-NEWLIB_VERSION="newlib-2.2.0.20150225"
+NEWLIB_URL="ftp://sourceware.org/pub/newlib/newlib-2.2.0.20150623.tar.gz"
+NEWLIB_VERSION="newlib-2.2.0.20150623"
 fi
 
 BINUTILS_URL="http://ftp.gnu.org/gnu/binutils/binutils-2.25.tar.gz"
@@ -343,9 +343,9 @@ mkdir -p build-gcc
 cd build-gcc
 # There seems to be a regression that requires GCC to build with -j1 for 4.9.2 (Tested on OSX)
 ../${GCC_VERSION}/configure ${GCCFLAGS} ${GCCFLAGS_ONE}
-${MAKE} all-gcc -j1 CFLAGS_FOR_TARGET="${OPTIMIZE}" \
+${MAKE} all-gcc -j${CPUS} CFLAGS_FOR_TARGET="${OPTIMIZE}" \
     LDFLAGS_FOR_TARGET="${OPTIMIZE_LD}"
-${MAKE} all-target-libgcc -j1 CFLAGS_FOR_TARGET="${OPTIMIZE}" \
+${MAKE} all-target-libgcc -j${CPUS} CFLAGS_FOR_TARGET="${OPTIMIZE}" \
     LDFLAGS_FOR_TARGET="${OPTIMIZE_LD}"
 ${MAKE} install-gcc
 ${MAKE} install-target-libgcc
