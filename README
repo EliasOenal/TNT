@@ -2,6 +2,12 @@ This is the Thumb2 Newlib Toolchain project providing a script to compile the la
 
 So far it only has been tested on OSX, Debian and NetBSD, feel free to push changes for your OS.
 
+Usage is quite simple:
+Execute "./toolchain.sh" to build toolchain
+Execute "./toolchain.sh clean" to remove build artefacts
+Check script header for configuration options
+
+02/29/2016 - GCC 5.3 and Newlib 2.3.0 as well as compilation with debug symbols.
 09/18/2015 - GCC 5.2 and the latest Newlib 2.2.0
 03/19/2014 - The latest everything. GCC 4.9 (snapshot), Newlib 2.1.0 (nano-malloc) and more!
 08/24/2013 - Additional optimization option preferring speed over size

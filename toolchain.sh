@@ -2,15 +2,20 @@
 # Thumb2 Newlib Toolchain
 # Written and placed into the public domain by
 # Elias Oenal <tnt@eliasoenal.com>
+#
+# Execute "./toolchain.sh" to build toolchain
+# Execute "./toolchain.sh clean" to remove build artefacts
 
 # re-install compiled components
 #DO_REINSTALLS=true
 
 # Make stuff small
-# NOTE: There's a bug in Newlib's memset() when optimizing for speed over size. 
 SIZE_OVER_SPEED=true
 
-# use newlib-nano-1.0
+# Debug symbols, allows debugging of C library
+DEBUG_SYMBOLS=true
+
+# Use newlib-nano-1.0
 #NANO=true
 
 # C++ support
@@ -22,31 +27,39 @@ SIZE_OVER_SPEED=true
 # Insight graphical GDB interface
 #BUILD_INSIGHT=true
 
+# Utility to support debugger with the same name
 #BUILD_STLINK=true
 
+# Size of buffers used by newlib, should be at least 64 bytes
+BUFFSIZ=64
+
+# Parallel build, broken on OSX due to GCC regression
+CPUS=1
+
 TARGET=arm-none-eabi
+
 PREFIX="$HOME/toolchain"
-CPUS=8
+
 export PATH="${PREFIX}/bin:${PATH}"
 export CC=gcc
 export CXX=g++
 
-GCC_URL="http://ftp.gnu.org/gnu/gcc/gcc-5.2.0/gcc-5.2.0.tar.bz2"
-GCC_VERSION="gcc-5.2.0"
+GCC_URL="http://ftp.gnu.org/gnu/gcc/gcc-5.3.0/gcc-5.3.0.tar.bz2"
+GCC_VERSION="gcc-5.3.0"
 
 if [ -n "$NANO" ]; then
 NEWLIB_URL="http://eliasoenal.com/newlib-nano-1.0.tar.bz2"
 NEWLIB_VERSION="newlib-nano-1.0"
 else
-NEWLIB_URL="ftp://sourceware.org/pub/newlib/newlib-2.2.0.20150623.tar.gz"
-NEWLIB_VERSION="newlib-2.2.0.20150623"
+NEWLIB_URL="ftp://sourceware.org/pub/newlib/newlib-2.3.0.20160104.tar.gz"
+NEWLIB_VERSION="newlib-2.3.0.20160104"
 fi
 
 BINUTILS_URL="http://ftp.gnu.org/gnu/binutils/binutils-2.25.tar.gz"
 BINUTILS_VERSION="binutils-2.25"
 
-GDB_URL="http://ftp.gnu.org/gnu/gdb/gdb-7.9.tar.gz"
-GDB_VERSION="gdb-7.9"
+GDB_URL="http://ftp.gnu.org/gnu/gdb/gdb-7.10.tar.gz"
+GDB_VERSION="gdb-7.10"
 
 STLINK_REPOSITORY="git://github.com/texane/stlink.git"
 STLINK="stlink"
@@ -181,12 +194,12 @@ case "$OS_TYPE" in
     OPT_PATH=/usr/local
     ;;
     "Darwin" )
-    export CC=gcc-mp-4.8
-    export CXX=g++-mp-4.8
+    export CC=gcc-mp-5
+    export CXX=g++-mp-5
     OPT_PATH=/opt/local
     ;;
     * )
-    echo "OS entry needed at line 100 of this script."
+    echo "OS entry needed at line ${LINENO} of this script."
     exit
 esac
 
@@ -207,6 +220,12 @@ else
 SIZE_VS_SPEED_NEWLIB=""
 fi
 
+if [ -n "$DEBUG_SYMBOLS" ]; then
+DEBUG_FLAGS="-g"
+else
+DEBUG_FLAGS=""
+fi
+
 #newlib
 NEWLIB_FLAGS="--target=${TARGET} \
 			--prefix=${PREFIX} \
@@ -225,14 +244,14 @@ NEWLIB_FLAGS="--target=${TARGET} \
 
 if [ -n "$SIZE_OVER_SPEED" ]; then
 SIZE_VS_SPEED_OPTIMIZE="-Os \
+			${DEBUG_FLAGS} \
 			-DPREFER_SIZE_OVER_SPEED \
 			-D__OPTIMIZE_SIZE__ \
-			-D__BUFSIZ__=64 \
 			-D_REENT_SMALL \
 			-fno-unroll-loops"
 else
 SIZE_VS_SPEED_OPTIMIZE="-Os \
-			-D__BUFSIZ__=1024"
+			${DEBUG_FLAGS}"
 fi
 
 # -ffunction-sections split functions into small sections for link time garbage collection
@@ -245,12 +264,15 @@ fi
 # -D__OPTIMIZE_SIZE__ ...again
 # -DSMALL_MEMORY optimize sbrk for small ram (128 byte pages instead of 4096)
 # -D__BUFSIZ__=64 tell newlib to use 64byte buffers instead of 1024
+# -D_STDIO_BSD_SEMANTICS optimize fflush()
 
 OPTIMIZE="-ffunction-sections \
 			-fdata-sections \
 			-mabi=aapcs \
 			${SIZE_VS_SPEED_OPTIMIZE} \
 			-DSMALL_MEMORY \
+			-D_STDIO_BSD_SEMANTICS \
+			-D__BUFSIZ__=${BUFFSIZ} \
 			-ffast-math \
 			-ftree-vectorize"
 
@@ -425,7 +447,7 @@ fi
 fi
 
 if [ -n "$BUILD_STLINK" ]; then
-if [ ! -e stlink.complete ]; then
+if [ ! -e build-stlink.complete ]; then
 
 cd stlink
 ./autogen.sh
@@ -436,7 +458,7 @@ cd build-stlink
 ${MAKE} -j${CPUS}
 ${MAKE} install
 cd ..
-touch stlink.complete
+touch build-stlink.complete
 
 elif [ -n "$DO_REINSTALLS" ]; then
 
