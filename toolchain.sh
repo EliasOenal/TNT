@@ -390,7 +390,7 @@ mkdir -p build-newlib
 cd build-newlib
 ../${NEWLIB_VERSION}/configure ${NEWLIB_FLAGS}
 
-${MAKE} all -j${CPUS} CFLAGS_FOR_TARGET="${OPTIMIZE}" LDFLAGS_FOR_TARGET="${OPTIMIZE_LD}"
+${MAKE} all -j${CPUS} CFLAGS_FOR_TARGET="${OPTIMIZE} -pg" LDFLAGS_FOR_TARGET="${OPTIMIZE_LD}"
 
 ${MAKE} install
 cd ..
