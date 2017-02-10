@@ -33,8 +33,8 @@ DEBUG_SYMBOLS=true
 # Size of buffers used by newlib, should be at least 64 bytes
 BUFFSIZ=64
 
-# Parallel build, broken on OSX due to GCC regression
-CPUS=1
+# Parallel build
+CPUS=4
 
 # Uncomment to enable instrumentation calls to newlib (can be used with gprof)
 #NEWLIB_PROFILING="-pg"
@@ -47,22 +47,22 @@ export PATH="${PREFIX}/bin:${PATH}"
 export CC=gcc
 export CXX=g++
 
-GCC_URL="http://ftp.gnu.org/gnu/gcc/gcc-5.3.0/gcc-5.3.0.tar.bz2"
-GCC_VERSION="gcc-5.3.0"
+GCC_URL="http://ftp.gnu.org/gnu/gcc/gcc-6.3.0/gcc-6.3.0.tar.bz2"
+GCC_VERSION="gcc-6.3.0"
 
 if [ -n "$NANO" ]; then
 NEWLIB_URL="http://eliasoenal.com/newlib-nano-1.0.tar.bz2"
 NEWLIB_VERSION="newlib-nano-1.0"
 else
-NEWLIB_URL="ftp://sourceware.org/pub/newlib/newlib-2.3.0.20160104.tar.gz"
-NEWLIB_VERSION="newlib-2.3.0.20160104"
+NEWLIB_URL="ftp://sourceware.org/pub/newlib/newlib-2.5.0.tar.gz"
+NEWLIB_VERSION="newlib-2.5.0"
 fi
 
-BINUTILS_URL="http://ftp.gnu.org/gnu/binutils/binutils-2.25.tar.gz"
-BINUTILS_VERSION="binutils-2.25"
+BINUTILS_URL="http://ftp.gnu.org/gnu/binutils/binutils-2.27.tar.gz"
+BINUTILS_VERSION="binutils-2.27"
 
-GDB_URL="http://ftp.gnu.org/gnu/gdb/gdb-7.10.tar.gz"
-GDB_VERSION="gdb-7.10"
+GDB_URL="https://ftp.gnu.org/gnu/gdb/gdb-7.12.1.tar.gz"
+GDB_VERSION="gdb-7.12.1"
 
 STLINK_REPOSITORY="git://github.com/texane/stlink.git"
 STLINK="stlink"

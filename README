@@ -7,6 +7,7 @@ Execute "./toolchain.sh" to build toolchain
 Execute "./toolchain.sh clean" to remove build artefacts
 Check script header for configuration options
 
+02/10/2017 - GCC 6.3, Newlib 2.5.0 etc. New option to enable Newlib instrumentation.
 02/29/2016 - GCC 5.3 and Newlib 2.3.0 as well as compilation with debug symbols.
 09/18/2015 - GCC 5.2 and the latest Newlib 2.2.0
 03/19/2014 - The latest everything. GCC 4.9 (snapshot), Newlib 2.1.0 (nano-malloc) and more!
