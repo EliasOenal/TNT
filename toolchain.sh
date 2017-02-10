@@ -36,6 +36,9 @@ BUFFSIZ=64
 # Parallel build, broken on OSX due to GCC regression
 CPUS=1
 
+# Uncomment to enable instrumentation calls to newlib (can be used with gprof)
+#NEWLIB_PROFILING="-pg"
+
 TARGET=arm-none-eabi
 
 PREFIX="$HOME/toolchain"
@@ -390,7 +393,7 @@ mkdir -p build-newlib
 cd build-newlib
 ../${NEWLIB_VERSION}/configure ${NEWLIB_FLAGS}
 
-${MAKE} all -j${CPUS} CFLAGS_FOR_TARGET="${OPTIMIZE} -pg" LDFLAGS_FOR_TARGET="${OPTIMIZE_LD}"
+${MAKE} all -j${CPUS} CFLAGS_FOR_TARGET="${OPTIMIZE} ${NEWLIB_PROFILING}" LDFLAGS_FOR_TARGET="${OPTIMIZE_LD}"
 
 ${MAKE} install
 cd ..
