@@ -9,8 +9,8 @@
 # re-install compiled components
 #DO_REINSTALLS=true
 
-# Make stuff small
-SIZE_OVER_SPEED=true
+# When the goal is minimum size
+#SIZE_OVER_SPEED=true
 
 # Debug symbols, allows debugging of C library
 DEBUG_SYMBOLS=true
@@ -31,7 +31,8 @@ DEBUG_SYMBOLS=true
 #BUILD_STLINK=true
 
 # Size of buffers used by newlib, should be at least 64 bytes
-BUFFSIZ=64
+# This saves RAM, yet significantly slows down IO.
+BUFFSIZ=1024
 
 # Parallel build
 CPUS=4
@@ -47,22 +48,22 @@ export PATH="${PREFIX}/bin:${PATH}"
 export CC=gcc
 export CXX=g++
 
-GCC_URL="http://ftp.gnu.org/gnu/gcc/gcc-6.3.0/gcc-6.3.0.tar.bz2"
-GCC_VERSION="gcc-6.3.0"
+GCC_URL="https://ftp.gnu.org/gnu/gcc/gcc-7.3.0/gcc-7.3.0.tar.xz"
+GCC_VERSION="gcc-7.3.0"
 
 if [ -n "$NANO" ]; then
 NEWLIB_URL="http://eliasoenal.com/newlib-nano-1.0.tar.bz2"
 NEWLIB_VERSION="newlib-nano-1.0"
 else
-NEWLIB_URL="ftp://sourceware.org/pub/newlib/newlib-2.5.0.tar.gz"
-NEWLIB_VERSION="newlib-2.5.0"
+NEWLIB_URL="https://sourceware.org/pub/newlib/newlib-3.0.0.tar.gz"
+NEWLIB_VERSION="newlib-3.0.0"
 fi
 
-BINUTILS_URL="http://ftp.gnu.org/gnu/binutils/binutils-2.27.tar.gz"
-BINUTILS_VERSION="binutils-2.27"
+BINUTILS_URL="https://ftp.gnu.org/gnu/binutils/binutils-2.30.tar.xz"
+BINUTILS_VERSION="binutils-2.30"
 
-GDB_URL="https://ftp.gnu.org/gnu/gdb/gdb-7.12.1.tar.gz"
-GDB_VERSION="gdb-7.12.1"
+GDB_URL="https://ftp.gnu.org/gnu/gdb/gdb-8.0.tar.xz"
+GDB_VERSION="gdb-8.0"
 
 STLINK_REPOSITORY="git://github.com/texane/stlink.git"
 STLINK="stlink"
@@ -110,7 +111,7 @@ if [ "$1" == "clean" ]; then
 fi
 
 # Download
-if [ ! -e ${GCC_VERSION}.tar.bz2 ]; then
+if [ ! -e ${GCC_VERSION}.tar.xz ]; then
 ${FETCH} ${GCC_URL}
 fi
 
@@ -126,12 +127,12 @@ fi
 fi
 
 
-if [ ! -e ${BINUTILS_VERSION}.tar.gz ]; then
+if [ ! -e ${BINUTILS_VERSION}.tar.xz ]; then
 ${FETCH} ${BINUTILS_URL}
 fi
 
 if [ -n "$BUILD_GDB" ]; then
-if [ ! -e ${GDB_VERSION}.tar.gz ]; then
+if [ ! -e ${GDB_VERSION}.tar.xz ]; then
 ${FETCH} ${GDB_URL}
 fi
 fi
@@ -150,7 +151,7 @@ fi
 
 # Extract
 if [ ! -e ${GCC_VERSION} ]; then
-${TAR} -xf ${GCC_VERSION}.tar.bz2
+${TAR} -xf ${GCC_VERSION}.tar.xz
 patch -N ${GCC_VERSION}/gcc/config/arm/t-arm-elf gcc-multilib.patch
 fi
 
@@ -166,7 +167,7 @@ patch -N ${NEWLIB_VERSION}/libgloss/arm/linux-crt0.c newlib-optimize.patch
 else
 patch -N ${NEWLIB_VERSION}/libgloss/arm/linux-crt0.c newlib-optimize.patch
 # LTO patch for newlib
-patch -N ${NEWLIB_VERSION}/newlib/libc/machine/arm/arm_asm.h newlib-lto.patch
+#patch -N ${NEWLIB_VERSION}/newlib/libc/machine/arm/arm_asm.h newlib-lto.patch
 #fix regression in 2.1.0
 #patch -N ${NEWLIB_VERSION}/libgloss/arm/cpu-init/Makefile.in newlib-2.1.0_libgloss_regression.patch
 fi
@@ -174,12 +175,12 @@ fi
 fi
 
 if [ ! -e ${BINUTILS_VERSION} ]; then
-${TAR} -xf ${BINUTILS_VERSION}.tar.gz
+${TAR} -xf ${BINUTILS_VERSION}.tar.xz
 fi
 
 if [ -n "$BUILD_GDB" ]; then
 if [ ! -e ${GDB_VERSION} ]; then
-${TAR} -xf ${GDB_VERSION}.tar.gz
+${TAR} -xf ${GDB_VERSION}.tar.xz
 fi
 fi
 
