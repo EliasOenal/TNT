@@ -48,22 +48,22 @@ export PATH="${PREFIX}/bin:${PATH}"
 export CC=gcc
 export CXX=g++
 
-GCC_URL="https://ftp.gnu.org/gnu/gcc/gcc-8.2.0/gcc-8.2.0.tar.xz"
-GCC_VERSION="gcc-8.2.0"
+GCC_URL="https://ftp.gnu.org/gnu/gcc/gcc-9.2.0/gcc-9.2.0.tar.xz"
+GCC_VERSION="gcc-9.2.0"
 
 if [ -n "$NANO" ]; then
 NEWLIB_URL="http://eliasoenal.com/newlib-nano-1.0.tar.bz2"
 NEWLIB_VERSION="newlib-nano-1.0"
 else
-NEWLIB_URL="https://sourceware.org/pub/newlib/newlib-3.0.0.tar.gz"
-NEWLIB_VERSION="newlib-3.0.0"
+NEWLIB_URL="https://sourceware.org/pub/newlib/newlib-3.3.0.tar.gz"
+NEWLIB_VERSION="newlib-3.3.0"
 fi
 
-BINUTILS_URL="https://ftp.gnu.org/gnu/binutils/binutils-2.30.tar.xz"
-BINUTILS_VERSION="binutils-2.30"
+BINUTILS_URL="https://ftp.gnu.org/gnu/binutils/binutils-2.33.1.tar.xz"
+BINUTILS_VERSION="binutils-2.33.1"
 
-GDB_URL="https://ftp.gnu.org/gnu/gdb/gdb-8.0.tar.xz"
-GDB_VERSION="gdb-8.0"
+GDB_URL="https://ftp.gnu.org/gnu/gdb/gdb-8.3.tar.xz"
+GDB_VERSION="gdb-8.3"
 
 STLINK_REPOSITORY="git://github.com/texane/stlink.git"
 STLINK="stlink"
@@ -198,8 +198,9 @@ case "$OS_TYPE" in
     OPT_PATH=/usr/local
     ;;
     "Darwin" )
-    export CC=gcc-mp-5
-    export CXX=g++-mp-5
+	# using gcc from macports
+    export CC=gcc-mp-9
+    export CXX=g++-mp-9
     OPT_PATH=/opt/local
     ;;
     * )
