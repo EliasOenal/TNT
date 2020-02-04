@@ -9,8 +9,14 @@
 # re-install compiled components
 #DO_REINSTALLS=true
 
-# When the goal is minimum size
+# When the goal is minimum flash size
+# (This may cost additional RAM)
 #SIZE_OVER_SPEED=true
+
+# Nano malloc
+# Optimised for systems with tiny amounts of RAM.
+# This implementation has issues joining freed segments.
+#NANO_MALLOC=true
 
 # Debug symbols, allows debugging of C library
 DEBUG_SYMBOLS=true
@@ -30,8 +36,9 @@ DEBUG_SYMBOLS=true
 # Utility to support debugger with the same name
 #BUILD_STLINK=true
 
-# Size of buffers used by newlib, should be at least 64 bytes
-# This saves RAM, yet significantly slows down IO.
+# Size of buffers used by newlib, should be at least 64 bytes.
+# Lowe values save RAM, yet significantly slow down IO.
+# This can selectively be overridden using setbuff(). 
 BUFFSIZ=1024
 
 # Parallel build
@@ -232,6 +239,12 @@ DEBUG_FLAGS=""
 fi
 
 #newlib
+if [ -n "$NANO_MALLOC" ]; then
+NEWLIB_NANO_MALLOC="--enable-newlib-nano-malloc"
+else
+NEWLIB_NANO_MALLOC=""
+fi
+
 NEWLIB_FLAGS="--target=${TARGET} \
 			--prefix=${PREFIX} \
 			${SIZE_VS_SPEED_NEWLIB} \
@@ -241,11 +254,10 @@ NEWLIB_FLAGS="--target=${TARGET} \
 			--disable-newlib-supplied-syscalls \
 			--enable-multilib \
 			--enable-interwork \
-			--enable-newlib-nano-malloc \
+			${NEWLIB_NANO_MALLOC} \
         	--enable-newlib-io-c99-formats \
 			--enable-newlib-io-long-long \
         	--enable-lto"
-
 
 if [ -n "$SIZE_OVER_SPEED" ]; then
 SIZE_VS_SPEED_OPTIMIZE="-Os \
