@@ -159,7 +159,7 @@ fi
 # Extract
 if [ ! -e ${GCC_VERSION} ]; then
 ${TAR} -xf ${GCC_VERSION}.tar.xz
-patch -N ${GCC_VERSION}/gcc/config/arm/t-arm-elf gcc10-multilib.patch
+patch -N ${GCC_VERSION}/gcc/config/arm/t-arm-elf gcc-multilib.patch
 fi
 
 if [ ! -e ${NEWLIB_VERSION} ]; then
