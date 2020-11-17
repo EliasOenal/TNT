@@ -25,10 +25,10 @@ DEBUG_SYMBOLS=true
 #NANO=true
 
 # C++ support
-#BUILD_CPP=true
+BUILD_CPP=true
 
 # GNU Debugger
-#BUILD_GDB=true
+BUILD_GDB=true
 
 # Insight graphical GDB interface
 #BUILD_INSIGHT=true
@@ -39,24 +39,24 @@ DEBUG_SYMBOLS=true
 # Size of buffers used by newlib, should be at least 64 bytes.
 # Lowe values save RAM, yet significantly slow down IO.
 # This can selectively be overridden using setbuff(). 
-BUFFSIZ=1024
+BUFFSIZ=64
 
 # Parallel build
-CPUS=4
+CPUS=8
 
 # Uncomment to enable instrumentation calls to newlib (can be used with gprof)
 #NEWLIB_PROFILING="-pg"
 
 TARGET=arm-none-eabi
 
-PREFIX="$HOME/toolchain"
+PREFIX="$HOME/toolchain-FLEXBOX"
 
 export PATH="${PREFIX}/bin:${PATH}"
 export CC=gcc
 export CXX=g++
 
-GCC_URL="https://ftp.gnu.org/gnu/gcc/gcc-9.2.0/gcc-9.2.0.tar.xz"
-GCC_VERSION="gcc-9.2.0"
+GCC_URL="https://ftp.gnu.org/gnu/gcc/gcc-10.2.0/gcc-10.2.0.tar.xz"
+GCC_VERSION="gcc-10.2.0"
 
 if [ -n "$NANO" ]; then
 NEWLIB_URL="http://eliasoenal.com/newlib-nano-1.0.tar.bz2"
@@ -66,11 +66,11 @@ NEWLIB_URL="https://sourceware.org/pub/newlib/newlib-3.3.0.tar.gz"
 NEWLIB_VERSION="newlib-3.3.0"
 fi
 
-BINUTILS_URL="https://ftp.gnu.org/gnu/binutils/binutils-2.33.1.tar.xz"
-BINUTILS_VERSION="binutils-2.33.1"
+BINUTILS_URL="https://ftp.gnu.org/gnu/binutils/binutils-2.35.1.tar.xz"
+BINUTILS_VERSION="binutils-2.35.1"
 
-GDB_URL="https://ftp.gnu.org/gnu/gdb/gdb-8.3.tar.xz"
-GDB_VERSION="gdb-8.3"
+GDB_URL="https://ftp.gnu.org/gnu/gdb/gdb-10.1.tar.xz"
+GDB_VERSION="gdb-10.1"
 
 STLINK_REPOSITORY="git://github.com/texane/stlink.git"
 STLINK="stlink"
@@ -159,7 +159,7 @@ fi
 # Extract
 if [ ! -e ${GCC_VERSION} ]; then
 ${TAR} -xf ${GCC_VERSION}.tar.xz
-patch -N ${GCC_VERSION}/gcc/config/arm/t-arm-elf gcc-multilib.patch
+patch -N ${GCC_VERSION}/gcc/config/arm/t-arm-elf gcc10-multilib.patch
 fi
 
 if [ ! -e ${NEWLIB_VERSION} ]; then
@@ -206,8 +206,8 @@ case "$OS_TYPE" in
     ;;
     "Darwin" )
 	# using gcc from macports
-    export CC=gcc-mp-9
-    export CXX=g++-mp-9
+    export CC=gcc-mp-10
+    export CXX=g++-mp-10
     OPT_PATH=/opt/local
     ;;
     * )
