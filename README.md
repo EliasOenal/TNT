@@ -1,11 +1,27 @@
+# Thumb2 Newlib Toolchain
 This is the Thumb2 Newlib Toolchain project providing a script to compile the latest GCC with Newlib and optimizations for microcontrollers.
 
 So far it only has been tested on OSX, Debian and NetBSD, feel free to push changes for your OS.
+
+
+# Dependencies
+
+Build dependencies on Ubuntu:
+```
+apt install build-essential gcc gdb binutils libmpfr6 libmpfr-dev libgmp-dev libgmp10 libmpc-dev libmpc3
+apt build-dep gdb binutils
+```
+
+
+# Building
 
 Usage is quite simple:
 Execute "./toolchain.sh" to build toolchain
 Execute "./toolchain.sh clean" to remove build artefacts
 Check script header for configuration options
+
+
+# Changes
 
 17/11/2020 - GCC 10.2.0, binutils 2.35.1 and GDB 10.1.
 02/03/2020 - GCC 9.2.0, Newlib 3.3.0, binutils 2.33.1 and GDB 8.3.
