@@ -1,7 +1,7 @@
 # Thumb2 Newlib Toolchain
 This is the Thumb2 Newlib Toolchain project providing a script to compile the latest GCC with Newlib and optimizations for microcontrollers.
 
-So far it only has been tested on OSX, Debian and NetBSD, feel free to push changes for your OS.
+So far it only has been tested on MacOS, Debian and NetBSD, feel free to push changes for your OS.
 
 
 # Dependencies
@@ -23,6 +23,7 @@ Usage is quite simple:
 
 # Changes
 
+* 03/26/2022 - GCC 11.2.0, Newlib 4.1.0, binutils 2.38 and GDB 11.2.
 * 17/11/2020 — GCC 10.2.0, binutils 2.35.1 and GDB 10.1.
 * 02/03/2020 — GCC 9.2.0, Newlib 3.3.0, binutils 2.33.1 and GDB 8.3.
 * 19/09/2018 — GCC 8.2
