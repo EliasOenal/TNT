@@ -1,7 +1,7 @@
 # Thumb2 Newlib Toolchain
 This is the Thumb2 Newlib Toolchain project providing a script to compile the latest GCC with Newlib and optimizations for microcontrollers.
 
-So far it only has been tested on MacOS, Debian and NetBSD, feel free to push changes for your OS.
+So far it has been tested on MacOS, Debian, Ubuntu and NetBSD, feel free to push changes for your OS. GDB currently fails to compile on Apple M1 (ARM64) machines running MacOS, although the rest of the toolchain succeeds to build.
 
 
 # Dependencies
@@ -23,10 +23,10 @@ Usage is quite simple:
 
 # Changes
 
-* 03/26/2022 - GCC 11.2.0, Newlib 4.1.0, binutils 2.38 and GDB 11.2.
-* 17/11/2020 — GCC 10.2.0, binutils 2.35.1 and GDB 10.1.
+* 03/26/2022 — GCC 11.2.0, Newlib 4.1.0, binutils 2.38 and GDB 11.2.
+* 11/17/2020 — GCC 10.2.0, binutils 2.35.1 and GDB 10.1.
 * 02/03/2020 — GCC 9.2.0, Newlib 3.3.0, binutils 2.33.1 and GDB 8.3.
-* 19/09/2018 — GCC 8.2
+* 09/19/2018 — GCC 8.2
 * 01/30/2018 — GCC 7.3, Newlib 3.0.0 etc. Support for Cortex-M7 including VFPU. (fpv5-d16 and fpv5-sp-d16)
                Default code size optimizations and buffer sizes are now less aggressive. (Can still be configured)
 * 02/10/2017 — GCC 6.3, Newlib 2.5.0 etc. New option to enable Newlib instrumentation.
