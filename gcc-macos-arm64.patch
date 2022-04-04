@@ -1,0 +1,14 @@
+Workaround for GCC builds on ARM64 MacOS systems.
+--- gcc-11.2.0/gcc/config.host.old	2021-07-28 08:55:07.000000000 +0200
++++ gcc-11.2.0/gcc/config.host	2022-03-26 03:06:55.000000000 +0100
+@@ -93,8 +93,8 @@
+ case ${host} in
+   *-darwin*)
+     # Generic darwin host support.
+-    out_host_hook_obj=host-darwin.o
+-    host_xmake_file="${host_xmake_file} x-darwin"
++    # out_host_hook_obj=host-darwin.o
++    # host_xmake_file="${host_xmake_file} x-darwin"
+     ;;
+ esac
+ 
