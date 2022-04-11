@@ -69,8 +69,8 @@ fi
 BINUTILS_URL="https://ftp.gnu.org/gnu/binutils/binutils-2.38.tar.xz"
 BINUTILS_VERSION="binutils-2.38"
 
-GDB_URL="https://ftp.gnu.org/gnu/gdb/gdb-11.2.tar.xz"
-GDB_VERSION="gdb-11.2"
+GDB_URL="https://ftp.gnu.org/gnu/gdb/gdb-10.2.tar.xz"
+GDB_VERSION="gdb-10.2"
 
 STLINK_REPOSITORY="git://github.com/texane/stlink.git"
 STLINK="stlink"
