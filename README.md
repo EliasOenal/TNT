@@ -23,6 +23,7 @@ Usage is quite simple:
 
 # Changes
 
+* 05/22/2022 - GDB 12.1, added GMP 
 * 04/11/2022 — Downgraded GDB to version 10.2 due to regressions in 11.2.
 * 03/26/2022 — GCC 11.2.0, Newlib 4.1.0, binutils 2.38 and GDB 11.2.
 * 11/17/2020 — GCC 10.2.0, binutils 2.35.1 and GDB 10.1.
