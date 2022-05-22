@@ -69,8 +69,11 @@ fi
 BINUTILS_URL="https://ftp.gnu.org/gnu/binutils/binutils-2.38.tar.xz"
 BINUTILS_VERSION="binutils-2.38"
 
-GDB_URL="https://ftp.gnu.org/gnu/gdb/gdb-11.2.tar.xz"
-GDB_VERSION="gdb-11.2"
+GDB_URL="https://ftp.gnu.org/gnu/gdb/gdb-12.1.tar.xz"
+GDB_VERSION="gdb-12.1"
+
+GMP_URL="https://ftp.gnu.org/gnu/gmp/gmp-6.2.1.tar.xz"
+GMP_VERSION="gmp-6.2.1"
 
 STLINK_REPOSITORY="git://github.com/texane/stlink.git"
 STLINK="stlink"
@@ -138,6 +141,12 @@ if [ ! -e ${BINUTILS_VERSION}.tar.xz ]; then
 ${FETCH} ${BINUTILS_URL}
 fi
 
+
+if [ ! -e ${GMP_VERSION}.tar.xz ]; then
+${FETCH} ${GMP_URL}
+fi
+
+
 if [ -n "$BUILD_GDB" ]; then
 if [ ! -e ${GDB_VERSION}.tar.xz ]; then
 ${FETCH} ${GDB_URL}
@@ -184,6 +193,12 @@ fi
 if [ ! -e ${BINUTILS_VERSION} ]; then
 ${TAR} -xf ${BINUTILS_VERSION}.tar.xz
 fi
+
+
+if [ ! -e ${GMP_VERSION} ]; then
+${TAR} -xf ${GMP_VERSION}.tar.xz
+fi
+
 
 if [ -n "$BUILD_GDB" ]; then
 if [ ! -e ${GDB_VERSION} ]; then
@@ -443,6 +458,26 @@ fi
 fi
 
 
+
+if [ ! -e build-gmp.complete ]; then
+
+mkdir -p build-gmp
+cd build-gmp
+../${GMP_VERSION}/configure --prefix=$PREFIX
+${MAKE} all -j${CPUS}
+${MAKE} install
+cd ..
+touch build-gmp.complete
+
+elif [ -n "$DO_REINSTALLS" ]; then
+
+cd build-gmp
+${MAKE} install
+cd ..
+
+fi
+
+
 if [ -n "$BUILD_GDB" ]; then
 if [ ! -e build-gdb.complete ]; then
 
@@ -453,6 +488,7 @@ ${MAKE} all -j${CPUS}
 ${MAKE} install
 cd ..
 touch build-gdb.complete
+
 
 elif [ -n "$DO_REINSTALLS" ]; then
 
