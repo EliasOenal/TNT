@@ -55,8 +55,8 @@ export PATH="${PREFIX}/bin:${PATH}"
 export CC=gcc
 export CXX=g++
 
-GCC_URL="https://ftp.gnu.org/gnu/gcc/gcc-11.2.0/gcc-11.2.0.tar.xz"
-GCC_VERSION="gcc-11.2.0"
+GCC_URL="https://ftp.gnu.org/gnu/gcc/gcc-12.2.0/gcc-12.2.0.tar.xz"
+GCC_VERSION="gcc-12.2.0"
 
 if [ -n "$NANO" ]; then
 NEWLIB_URL="http://eliasoenal.com/newlib-nano-1.0.tar.bz2"
@@ -168,7 +168,7 @@ fi
 # Extract
 if [ ! -e ${GCC_VERSION} ]; then
 ${TAR} -xf ${GCC_VERSION}.tar.xz
-patch -N ${GCC_VERSION}/gcc/config/arm/t-arm-elf gcc-multilib.patch
+patch -N ${GCC_VERSION}/gcc/config/arm/t-arm-elf gcc-multilib-12.patch
 patch -N ${GCC_VERSION}/gcc/config.host gcc-macos-arm64.patch # Workaround for GCC builds on MacOS ARM64
 fi
 
@@ -222,8 +222,8 @@ case "$OS_TYPE" in
     ;;
     "Darwin" )
 	# using gcc from macports
-    export CC=gcc-mp-11
-    export CXX=g++-mp-11
+    export CC=gcc-mp-12
+    export CXX=g++-mp-12
     OPT_PATH=/opt/local
     ;;
     * )
